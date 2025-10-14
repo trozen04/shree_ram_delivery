@@ -135,7 +135,9 @@ class StatusWiseOrderController extends  GetxController{
       params.add("startDate=$startDate");
       params.add("endDate=$endDate");
 
-      if (status.isNotEmpty) params.add("status=$status");
+      if (status.isNotEmpty && status.toLowerCase() != 'total') {
+        params.add("status=$status");
+      }
 
       String url = "$baseUrl?${params.join('&')}";
 
@@ -157,9 +159,11 @@ class StatusWiseOrderController extends  GetxController{
 
       historyList.clear();
       if (response["statusWiseData"] != null && response["statusWiseData"].isNotEmpty) {
-        var orders = response["statusWiseData"][0]["orders"] ?? [];
-        for (var value in orders) {
-          historyList.add(DailyAssignedOrderModel.fromJson(value));
+        for (var statusData in response["statusWiseData"]) {
+          var orders = statusData["orders"] ?? [];
+          for (var value in orders) {
+            historyList.add(DailyAssignedOrderModel.fromJson(value));
+          }
         }
       }
       update();
