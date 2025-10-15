@@ -33,6 +33,7 @@ class ConstantString {
   static final String  getDateWiseHistory= "${base_Url}incharge/gettotalorderbyincharge/";
   static final String  gettodayordersummary= "${base_Url}incharge/gettodayordersummary/";
   static final String  inchargeordersummary= "${base_Url}incharge/inchargeordersummary/";
+  static final String  getRemainingProductCount= "${base_Url}incharge/getinchargeorderloadstatus/";
 
 
 

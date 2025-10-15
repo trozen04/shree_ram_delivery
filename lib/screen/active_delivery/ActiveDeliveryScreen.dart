@@ -74,11 +74,11 @@ class ActiveDeliveryScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                           Text(
-                            "Order Id -${model.orderid!.sId??""}",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 16),
-                          ),
+                          //  Text(
+                          //   "Order Id -${model.orderid!.sId??""}",
+                          //   style: TextStyle(
+                          //       fontWeight: FontWeight.w600, fontSize: 16),
+                          // ),
                           const SizedBox(height: 6),
                           // Row(
                           //   children: const [
@@ -226,9 +226,9 @@ class ActiveDeliveryScreen extends StatelessWidget {
                                   mainAxisAlignment:
                                   MainAxisAlignment.spaceBetween,
                                   children:  [
-                                    Text("Order Id - ${model.orderid!.sId??""}",
-                                        style:
-                                        TextStyle(fontWeight: FontWeight.w500)),
+                                    // Text("Order Id - ${model.orderid!.sId??""}",
+                                    //     style:
+                                    //     TextStyle(fontWeight: FontWeight.w500)),
                                     // Text("3.2 km",
                                     //     style: TextStyle(
                                     //         fontWeight: FontWeight.w500,
@@ -291,7 +291,7 @@ class ActiveDeliveryScreen extends StatelessWidget {
                           const SizedBox(height: 20),
 
                           // Order Items
-                          const Text("Order Items (3)",
+                          const Text("Order Items",
                               style: TextStyle(
                                   fontWeight: FontWeight.w600, fontSize: 16)),
                           const SizedBox(height: 10),
@@ -315,8 +315,24 @@ class ActiveDeliveryScreen extends StatelessWidget {
                           Text("Labour Charge : ₹${model.orderid!.totalLabourCharge??"0"}"),
                           Divider(),
                           if(model.orderid!=null)
-                          Text("Total Amount  : ₹${model.orderid!.grandTotal??"0"}",
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          // Text("Total Amount  : ₹${model.orderid!.grandTotal??"0"}",
+                          //     style: TextStyle(fontWeight: FontWeight.bold)),
+                            Obx(() {
+                              // Safely parse numeric values
+                              final double grandTotal = double.tryParse("${model.orderid?.grandTotal ?? 0}") ?? 0;
+                              final double deliveryFee = controller.latestDeliveryCharge.value != 0
+                                  ? controller.latestDeliveryCharge.value.toDouble()
+                                  : double.tryParse("${model.orderid?.deliverycharge ?? 0}") ?? 0;
+
+                              final double totalAmount = grandTotal + deliveryFee;
+
+                              return Text(
+                                "Amount To Be Collected : ₹$totalAmount",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              );
+                            }),
+
+                          SizedBox(height: 20,),
                           if(model.orderid!=null)
                           Row(
                             mainAxisAlignment:
@@ -519,6 +535,24 @@ class ActiveDeliveryScreen extends StatelessWidget {
               child: Image.network(
                 ConstantString.image_base_Url+(data.productimage!=null?data.productimage!.isNotEmpty?(data.productimage!.first??""):"":""),
                 fit: BoxFit.fitHeight,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                },
+
+                // ❌ Show fallback on error
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey.shade200,
+                    child: const Icon(
+                      Icons.broken_image,
+                      color: Colors.grey,
+                      size: 40,
+                    ),
+                  );
+                },
               ),
             ),
           ),

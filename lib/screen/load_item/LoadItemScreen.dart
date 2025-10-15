@@ -8,10 +8,11 @@ import '../../constant/ConstantString.dart';
 import 'LoadItemController.dart';
 
 class LoadItemScreen extends StatelessWidget {
+  final DailyAssignedOrderModel model;
+  final Items toElement;
+  final int remainingQuantity; // ← naya parameter
 
-  DailyAssignedOrderModel  model;
-  Items  toElement;
-  LoadItemScreen( this.model, this.toElement, {super.key});
+  LoadItemScreen(this.model, this.toElement, this.remainingQuantity, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,24 +49,6 @@ class LoadItemScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      // Vehicle No Field
-                      // const Text(
-                      //   "Vehicle No.",
-                      //   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      // ),
-                      // const SizedBox(height: 8),
-                      // TextField(
-                      //   controller: controller.vehicleNoController,
-                      //   decoration: InputDecoration(
-                      //     hintText: "Enter Vehicle No.",
-                      //     filled: true,
-                      //     fillColor: Colors.grey[200],
-                      //     border: OutlineInputBorder(
-                      //       borderRadius: BorderRadius.circular(8),
-                      //       borderSide: BorderSide.none,
-                      //     ),
-                      //   ),
-                      // ),
 
                       const SizedBox(height: 24),
 
@@ -110,7 +93,7 @@ class LoadItemScreen extends StatelessWidget {
                                       Text("${toElement.productId!.productname??""}",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold)),
-                                      Text("100% refined sunflower oil ${toElement.productId!.brand??""}",
+                                      Text(" ${toElement.productId!.brand??""}",
                                           style: TextStyle(color: Colors.grey)),
                                     ],
                                   ),
@@ -119,12 +102,13 @@ class LoadItemScreen extends StatelessWidget {
                                   radius: 14,
                                   backgroundColor: Colors.yellow[600],
                                   child: Text(
-                                    (toElement.quantity??"").toString(),
+                                    remainingQuantity.toString(),
                                     style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold),
                                   ),
                                 )
+
                               ],
                             ),
 
@@ -135,8 +119,9 @@ class LoadItemScreen extends StatelessWidget {
                               controller: controller.quantityLoadedController,
                               keyboardType: TextInputType.number,
                               onChanged: (value){
-                                if(value!=""){
-                                  controller.onUpdate(toElement.quantity??0);
+                                if(value.isNotEmpty){
+                                  // Pass remainingQuantity from constructor
+                                  controller.onUpdate(remainingQuantity);
                                 }
                               },
                               decoration: InputDecoration(
@@ -172,7 +157,7 @@ class LoadItemScreen extends StatelessWidget {
                             TextField(
                               controller: controller.balanceLeftController,
                               keyboardType: TextInputType.number,
-                              readOnly: true,
+                              readOnly: false,
                               decoration: InputDecoration(
                                 labelText: "Balance Left",
                                 filled: true,

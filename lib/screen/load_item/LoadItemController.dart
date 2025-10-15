@@ -3,6 +3,7 @@
 
 
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -56,15 +57,31 @@ class   LoadItemController  extends  GetxController{
 
 
 
-  onUpdate(int productQuatity){
-     int quatity=int.parse(quantityLoadedController.text??"0");
-     if(quatity>0){
-       balanceLeftController.text=(productQuatity-quatity).toString();
-       stockLeftController.text=(stockQuantity-quatity).toString();
-       update();
-     }
-  }
+  // onUpdate(int productQuatity){
+  //    int quatity=int.parse(quantityLoadedController.text??"0");
+  //    if(quatity>0){
+  //      balanceLeftController.text=(productQuatity-quatity).toString();
+  //      stockLeftController.text=(stockQuantity-quatity).toString();
+  //      update();
+  //    }
+  // }
 
+  void onUpdate(int initialRemainingQuantity){
+    int loaded = int.tryParse(quantityLoadedController.text) ?? 0;
+
+    // Remaining quantity = initial remaining - loaded
+    int remaining = initialRemainingQuantity - loaded;
+    remaining = remaining < 0 ? 0 : remaining;
+
+    balanceLeftController.text = remaining.toString();
+
+    // Stock left = total stock - loaded
+    int stockLeft = stockQuantity - loaded;
+    stockLeft = stockLeft < 0 ? 0 : stockLeft;
+    stockLeftController.text = stockLeft.toString();
+
+    update();
+  }
 
 
   getProfile() {
@@ -120,6 +137,8 @@ class   LoadItemController  extends  GetxController{
       "Authorization": "Bearer ${loginModel.driver!.token ?? ""}"
     }).then((onValue){
       var responce=jsonDecode(onValue);
+      developer.log('load Response: ${responce}');
+
       if(responce!=null) {
         stockQuantity=responce["availableQuantity"]??0;
         update();
@@ -143,6 +162,7 @@ class   LoadItemController  extends  GetxController{
     },body: map).then((onValue){
       var response=jsonDecode(onValue);
        AlertDialogManager().isErrorAndSuccessAlertDialogMessage(context, "Success", "Loaded Successfully",onTapFunction: (){
+         Get.back();
          Get.back();
        });
       update();

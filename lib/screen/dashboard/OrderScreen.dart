@@ -110,7 +110,7 @@ class OrderScreen {
                                   address:
                                       "${model.deliveryaddress!=null?"${(model.deliveryaddress!.addressline??"")+","+(model.deliveryaddress!.city??"")+","+(model.deliveryaddress!.state??"")+","+(model.deliveryaddress!.pin??"").toString()+","}":""}",
                                   phone: "+91 ${model.userId!=null?model.userId!.mobileno??"":""}",
-                                  payment: model.paymentmethod=="cod"?"Cash - ₹${model.grandTotal??""}":"${model.paymentmethod=="paylater"?"":""}",
+                                  payment: model.paymentmethod=="cod"?"Cash - ₹${model.grandTotal??""}":"${model.paymentmethod=="paylater"?"Paylater - ₹${model.grandTotal??""}":""}",
                                   status: model.status??"",
                                   onActionTap: () {
                                     // Same logic here
@@ -243,13 +243,13 @@ class OrderScreen {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "#$orderId",
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                // Text(
+                //   "#$orderId",
+                //   style: const TextStyle(
+                //     fontSize: 14,
+                //     fontWeight: FontWeight.w600,
+                //   ),
+                // ),
                 Text(
                   status,
                   style: TextStyle(

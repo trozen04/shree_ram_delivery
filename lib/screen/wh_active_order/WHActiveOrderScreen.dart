@@ -15,6 +15,7 @@ import 'package:shree_ram_delivery_app/model/DailyAssignedOrderModel.dart';
 import 'package:shree_ram_delivery_app/screen/active_delivery/ActiveDeliveryController.dart';
 import 'package:shree_ram_delivery_app/screen/load_item/LoadItemScreen.dart';
 
+import '../../model/LoadStatusItem.dart';
 import 'WHActiveOrderController.dart';
 
 class WHActiveOrderScreen extends StatelessWidget {
@@ -133,10 +134,10 @@ class WHActiveOrderScreen extends StatelessWidget {
                                       mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                       children:  [
-                                        Text("Order Id - ${model.sId??""}",
-                                            style:
-                                            TextStyle(fontWeight: FontWeight.w500)),
-                                        // Text("3.2 km",
+                                        // Text("Order Id - ${model.sId??""}",
+                                        //     style:
+                                        //     TextStyle(fontWeight: FontWeight.w500)),
+                                        // // Text("3.2 km",
                                         //     style: TextStyle(
                                         //         fontWeight: FontWeight.w500,
                                         //         color: Colors.blue)),
@@ -173,7 +174,7 @@ class WHActiveOrderScreen extends StatelessWidget {
                                         Icon(Icons.currency_rupee,
                                             color: Colors.purple, size: 16),
                                         SizedBox(width: 6),
-                                        Text("₹${model.grandTotal??"0"}"),
+                                        Text("${model.grandTotal??"0"}"),
                                       ],
                                     ),
                                     const SizedBox(height: 8),
@@ -214,21 +215,36 @@ class WHActiveOrderScreen extends StatelessWidget {
                              if(model.items!=[])
                              Column(
                                children: model.items!.map((toElement){
-                                 return  InkWell(
-                                     onTap: (){
+                                 return Material(
+                                   color: Colors.transparent, // agar background color nahi chahiye
+                                   child: InkWell(
+                                     onTap: () {
+                                       final loadItem = controller.loadStatusItems.firstWhere(
+                                             (e) => e.productId == toElement.productId!.sId,
+                                         orElse: () => LoadStatusItem(
+                                           productId: toElement.productId!.sId ?? "",
+                                           orderedQuantity: toElement.quantity ?? 0,
+                                           loadedQuantity: 0,
+                                           remainingQuantity: toElement.quantity ?? 0,
+                                           status: "",
+                                         ),
+                                       );
 
-                                       Get.to(LoadItemScreen(model,toElement));
+                                       Get.to(LoadItemScreen(model, toElement, loadItem.remainingQuantity));
                                      },
-                                     child: _orderItem(toElement));
+                                     child: _orderItem(toElement, controller),
+                                   ),
+                                 );
+
                                }).toList(),
                              ),
 
                               const SizedBox(height: 10),
-                               Text("Sub Total          : ₹${model.subtotal??"0"}"),
-                               Text("Delivery Fee     : ₹${model.deliverycharge??"0"}"),
-                               Text("Labour Charge : ₹${model.totalLabourCharge??"0"}"),
+                               Text("Sub Total          : ₹ ${model.subtotal??"0"}"),
+                               Text("Delivery Fee     : ₹ ${model.deliverycharge??"0"}"),
+                               Text("Labour Charge : ₹ ${model.totalLabourCharge??"0"}"),
                                Divider(),
-                               Text("Total Amount  : ₹${model.grandTotal??"0"}",
+                               Text("Total Amount  : ₹ ${model.grandTotal??"0"}",
                                   style: TextStyle(fontWeight: FontWeight.bold)),
                               const SizedBox(height: 20),
                               const Divider(),
@@ -295,9 +311,135 @@ class WHActiveOrderScreen extends StatelessWidget {
 
 
 
-  static Widget _orderItem(Items  model) {
+  // static Widget _orderItem(Items  model) {
+  //
+  //   ProductId  data=model.productId??ProductId();
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(vertical: 6),
+  //     padding: const EdgeInsets.all(12),
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey.shade100,
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Container(
+  //           height: 100,
+  //           width: 100,
+  //           decoration: BoxDecoration(
+  //               borderRadius: BorderRadius.circular(9)
+  //           ),
+  //           child: ClipRRect(
+  //             borderRadius: BorderRadius.circular(9),
+  //             child: Image.network(
+  //               // Build safe URL
+  //               ConstantString.image_base_Url +
+  //                   ((data.productimage != null && data.productimage!.isNotEmpty)
+  //                       ? (data.productimage!.first ?? "")
+  //                       : "placeholder.png"), // fallback image
+  //               fit: BoxFit.cover,
+  //               loadingBuilder: (BuildContext context, Widget child,
+  //                   ImageChunkEvent? loadingProgress) {
+  //                 if (loadingProgress == null) return child;
+  //                 return Container(
+  //                   height: 100, // optional fixed height
+  //                   width: 100,  // optional fixed width
+  //                   color: Colors.grey.shade200,
+  //                   child: Center(
+  //                     child: CircularProgressIndicator(
+  //                       value: loadingProgress.expectedTotalBytes != null
+  //                           ? loadingProgress.cumulativeBytesLoaded /
+  //                           loadingProgress.expectedTotalBytes!
+  //                           : null,
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //               errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+  //                 return Container(
+  //                   height: 100,
+  //                   width: 100,
+  //                   color: Colors.grey.shade200,
+  //                   child: Icon(
+  //                     Icons.broken_image,
+  //                     color: Colors.grey,
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //           ),
+  //
+  //         ),
+  //         const SizedBox(width: 10),
+  //         Expanded(
+  //           child: SizedBox(
+  //             height: 100,
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //               children:  [
+  //                 Text("${data.productname??""}",
+  //                     style:
+  //                     TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+  //                 Text("${data.description}", maxLines: 3, overflow: TextOverflow.ellipsis,
+  //                     style: TextStyle(fontSize: 12, color: Colors.black54)),
+  //                 Text("Price Per Unit : ₹ ${model.pricePerUnit}"),
+  //                 // Text("Loaded Quantity:${model.}"),
+  //                 // Text("Left Quantity: 1"),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(width: 10),
+  //         Container(
+  //           padding: const EdgeInsets.all(8),
+  //           decoration: const BoxDecoration(
+  //               shape: BoxShape.circle, color: Colors.amber),
+  //           child:  Text("${model.quantity??""}",
+  //               style:
+  //               TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+  //         )
+  //       ],
+  //     ),
+  //   );
+  // }
 
-    ProductId  data=model.productId??ProductId();
+  static Widget _orderItem(Items model, WHActiveOrderController controller) {
+    ProductId data = model.productId ?? ProductId();
+
+    // Log product info
+    print("==== Product Info ====");
+    print("Product ID: ${data.sId}");
+    print("Product Name: ${data.productname}");
+    print("Ordered Quantity: ${model.quantity}");
+
+    // Log controller loadStatusItems
+    print("==== Controller LoadStatusItems ====");
+    for (var item in controller.loadStatusItems) {
+      print(
+          "ProductId: ${item.productId}, Ordered: ${item.orderedQuantity}, Loaded: ${item.loadedQuantity}, Remaining: ${item.remainingQuantity}, Status: ${item.status}");
+    }
+
+    // Find the load status for this item from the controller
+    final loadItem = controller.loadStatusItems.firstWhere(
+          (e) => e.productId == data.sId,
+      orElse: () {
+        print(
+            "⚠️ LoadStatusItem not found for product ${data.sId}, using default values");
+        return LoadStatusItem(
+          productId: data.sId ?? "",
+          orderedQuantity: model.quantity ?? 0,
+          loadedQuantity: 0,
+          remainingQuantity: model.quantity ?? 0,
+          status: "",
+        );
+      },
+    );
+
+    // Log selected loadItem
+    print("Selected LoadItem: ProductId: ${loadItem.productId}, Status: ${loadItem.status}, Remaining: ${loadItem.remainingQuantity}");
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.all(12),
@@ -306,47 +448,93 @@ class WHActiveOrderScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Product Image
           Container(
             height: 100,
             width: 100,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(9)
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(9)),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(9),
               child: Image.network(
-                ConstantString.image_base_Url+(data.productimage!=null?data.productimage!.isNotEmpty?(data.productimage!.first??""):"":""),
-                fit: BoxFit.fitHeight,
+                ConstantString.image_base_Url +
+                    ((data.productimage != null && data.productimage!.isNotEmpty)
+                        ? (data.productimage!.first ?? "")
+                        : "placeholder.png"),
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                },
+
+                // ❌ Show fallback on error
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey.shade200,
+                    child: const Icon(
+                      Icons.broken_image,
+                      color: Colors.grey,
+                      size: 40,
+                    ),
+                  );
+                },
               ),
             ),
           ),
           const SizedBox(width: 10),
+
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children:  [
-                Text("${data.productname??""}",
-                    style:
-                    TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                Text("${data.description}",
-                    style: TextStyle(fontSize: 12, color: Colors.black54)),
-                Text("Price Per Unit : ₹${model.pricePerUnit}"),
-                // Text("Loaded Quantity:${model.}"),
-                // Text("Left Quantity: 1"),
-              ],
+            child: SizedBox(
+              height: 100,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text("${data.productname ?? ""}",
+                      style:
+                      TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  Text("${data.description}",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: Colors.black54)),
+                  Text("Price Per Unit : ₹ ${model.pricePerUnit}"),
+
+                  // Show remaining quantity ONLY for Total / Partiallydispatch
+                  if (loadItem.status == "Total" || loadItem.status == "Partiallydispatch") ...[
+                    Text(
+                        "Remaining Quantity: ${loadItem.remainingQuantity}",
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold)),
+                    Text(
+                        "Loaded Quantity: ${loadItem.loadedQuantity}",
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold)),
+                  ]
+                ],
+              ),
             ),
           ),
+
+          const SizedBox(width: 10),
+          // Circle with quantity
           Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
                 shape: BoxShape.circle, color: Colors.amber),
-            child:  Text("${model.quantity??""}",
-                style:
-                TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+            child: Text("${loadItem.remainingQuantity}",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.white)),
           )
         ],
       ),
     );
   }
+
 }

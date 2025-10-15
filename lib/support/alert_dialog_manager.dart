@@ -15,6 +15,24 @@ import 'app_theme.dart';
 
 class AlertDialogManager
 {
+  static bool _isDialogOpen = false;
+
+  // Generic dialog opener
+  static void showDialogIfNotOpen({
+    required Widget dialog,
+    bool barrierDismissible = true,
+  }) {
+    if (!_isDialogOpen) {
+      _isDialogOpen = true;
+      Get.dialog(
+        dialog,
+        barrierDismissible: barrierDismissible,
+      ).then((_) {
+        // Reset flag when dialog closes
+        _isDialogOpen = false;
+      });
+    }
+  }
 
   isErrorAndSuccessAlertDialogMessage(BuildContext context, String title, String msg, {void Function()? onTapFunction}) {
 

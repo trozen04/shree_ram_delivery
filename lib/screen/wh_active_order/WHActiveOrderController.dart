@@ -18,6 +18,7 @@ import '../../constant/APIConstant.dart';
 import '../../constant/ConstantString.dart';
 import '../../model/DailyAssignedOrderModel.dart';
 import '../../model/InChargeProfileModel.dart';
+import '../../model/LoadStatusItem.dart';
 import '../../model/LoginModel.dart';
 import '../../support/PreferenceManager.dart';
 import '../../support/alert_dialog_manager.dart';
@@ -35,6 +36,7 @@ class WHActiveOrderController   extends GetxController{
   LoginModel  loginModel=LoginModel();
   InChargeProfileModel   profileModel=InChargeProfileModel();
   ProfileModel  driverProfileModel=ProfileModel();
+  List<LoadStatusItem> loadStatusItems = [];
 
   String base64Profile="";
 
@@ -53,6 +55,8 @@ class WHActiveOrderController   extends GetxController{
       getProfile();
       getDriverProfile();
       update();
+      getInchargeOrderLoadStatus(context, loginModel.driver!.id ?? "", model.sId ?? "");
+
     });
   }
 
@@ -200,4 +204,71 @@ class WHActiveOrderController   extends GetxController{
     }
   }
 
+  Future<void> getInchargeOrderLoadStatus(
+      BuildContext context, String inchargeId, String orderId) async {
+    final uri = Uri.parse(
+        ConstantString.getRemainingProductCount + "${orderId}/${loginModel.driver!.id}");
+
+    print("GET URI: $uri");
+
+    try {
+      EasyLoading.show(status: "Loading...");
+
+      final response = await http.get(
+        uri,
+        headers: {
+          "accept": "application/json",
+          "Authorization": "Bearer ${loginModel.driver!.token ?? ""}",
+        },
+      );
+
+      EasyLoading.dismiss();
+
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final responseJson = jsonDecode(response.body);
+
+        // ✅ Assign the data to your model
+        if (responseJson['data'] != null) {
+          loadStatusItems = (responseJson['data'] as List)
+              .map((e) => LoadStatusItem.fromJson(e))
+              .toList();
+        }
+
+        update(); // rebuild UI
+
+        AlertDialogManager().isErrorAndSuccessAlertDialogMessage(
+          context,
+          "Success",
+          responseJson["message"] ?? "Data fetched successfully",
+          onTapFunction: () {
+            Get.back();
+          },
+        );
+      } else {
+        final responseJson = jsonDecode(response.body);
+        AlertDialogManager().isErrorAndSuccessAlertDialogMessage(
+          context,
+          "Error",
+          responseJson["message"] ?? "Something went wrong",
+          onTapFunction: () {
+            Get.back();
+          },
+        );
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      print("Exception: $e");
+      AlertDialogManager().isErrorAndSuccessAlertDialogMessage(
+        context,
+        "Exception",
+        "Oops! Something went wrong. Please try again later.",
+        onTapFunction: () {
+          Get.back();
+        },
+      );
+    }
+  }
 }
