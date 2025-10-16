@@ -22,6 +22,7 @@ class DailyAssignedOrderModel {
   num? iV;
   String? godownInchargeId;
   String? warehouseId;
+  String? inchargeStatus;
 
   DailyAssignedOrderModel(
       {this.location,
@@ -46,7 +47,9 @@ class DailyAssignedOrderModel {
         this.updatedAt,
         this.iV,
         this.godownInchargeId,
-        this.warehouseId});
+        this.warehouseId,
+        this.inchargeStatus
+      });
 
   DailyAssignedOrderModel.fromJson(Map<String, dynamic> json) {
     location = json['location'] != null
@@ -82,6 +85,7 @@ class DailyAssignedOrderModel {
     iV = json['__v'];
     godownInchargeId = json['godownInchargeId'];
     warehouseId = json['warehouseId'];
+    inchargeStatus = json['inchargeStatus'];
   }
 
   Map<String, dynamic> toJson() {
@@ -117,6 +121,7 @@ class DailyAssignedOrderModel {
     data['__v'] = this.iV;
     data['godownInchargeId'] = this.godownInchargeId;
     data['warehouseId'] = this.warehouseId;
+    data['inchargeStatus'] = this.inchargeStatus;
     return data;
   }
 }

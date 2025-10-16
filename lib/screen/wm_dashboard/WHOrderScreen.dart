@@ -290,7 +290,7 @@ class WHOrderScreen {
               ],
             ),
             const SizedBox(height: 6),
-            Text("Payment $payment",
+            Text("Payment: $payment",
                 style: const TextStyle(
                     fontSize: 13,
                     color: Colors.black,

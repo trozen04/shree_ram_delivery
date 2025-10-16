@@ -2,14 +2,14 @@ class ConstantString {
 
 
   ///Baseurl Server
-  // static final String base_Url = "https://shreeram.volvrit.org/api/";
-  // static final String image_base_Url = "https://shreeram.volvrit.org";
+  static final String base_Url = "https://shreeram.volvrit.org/api/";
+  static final String image_base_Url = "https://shreeram.volvrit.org";
 
   ///Others
   // static final String base_Url = "https://bcfdba5389b3.ngrok-free.app/api/";
 
-  static final String base_Url = "http://192.168.1.37:3000/api/";
-  static final String image_base_Url = "http://192.168.1.37:3000";
+  // static final String base_Url = "http://192.168.1.37:3000/api/";
+  // static final String image_base_Url = "http://192.168.1.37:3000";
 
   static final String login = "${base_Url}employee/loginemployee";
   static final String updateDetails = "${base_Url}employee/updateremaingdetails/";

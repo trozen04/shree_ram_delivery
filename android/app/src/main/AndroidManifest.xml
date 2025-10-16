@@ -24,7 +24,7 @@
 
 
     <application
-        android:label="ShreeRamDeliveryApp"
+        android:label="Anaz Mart Staff"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

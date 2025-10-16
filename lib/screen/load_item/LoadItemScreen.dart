@@ -10,7 +10,7 @@ import 'LoadItemController.dart';
 class LoadItemScreen extends StatelessWidget {
   final DailyAssignedOrderModel model;
   final Items toElement;
-  final int remainingQuantity; // ← naya parameter
+  final int remainingQuantity;
 
   LoadItemScreen(this.model, this.toElement, this.remainingQuantity, {super.key});
 

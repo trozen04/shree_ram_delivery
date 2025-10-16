@@ -35,7 +35,6 @@ class AlertDialogManager
   }
 
   isErrorAndSuccessAlertDialogMessage(BuildContext context, String title, String msg, {void Function()? onTapFunction}) {
-
     Get.dialog(
         AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),

@@ -213,31 +213,46 @@ class WHActiveOrderScreen extends StatelessWidget {
                               const SizedBox(height: 10),
                              if(model.items!=null)
                              if(model.items!=[])
-                             Column(
-                               children: model.items!.map((toElement){
-                                 return Material(
-                                   color: Colors.transparent, // agar background color nahi chahiye
-                                   child: InkWell(
-                                     onTap: () {
-                                       final loadItem = controller.loadStatusItems.firstWhere(
-                                             (e) => e.productId == toElement.productId!.sId,
-                                         orElse: () => LoadStatusItem(
-                                           productId: toElement.productId!.sId ?? "",
-                                           orderedQuantity: toElement.quantity ?? 0,
-                                           loadedQuantity: 0,
-                                           remainingQuantity: toElement.quantity ?? 0,
-                                           status: "",
-                                         ),
-                                       );
+                               Column(
+                                 children: model.items!
+                                     .where((item) {
+                                   // Check if remaining quantity is greater than 0
+                                   final loadItem = controller.loadStatusItems.firstWhere(
+                                         (e) => e.productId == item.productId!.sId,
+                                     orElse: () => LoadStatusItem(
+                                       productId: item.productId!.sId ?? "",
+                                       orderedQuantity: item.quantity ?? 0,
+                                       loadedQuantity: 0,
+                                       remainingQuantity: item.quantity ?? 0,
+                                       status: "",
+                                     ),
+                                   );
+                                   return loadItem.remainingQuantity > 0;
+                                 })
+                                     .map((toElement) {
+                                   final loadItem = controller.loadStatusItems.firstWhere(
+                                         (e) => e.productId == toElement.productId!.sId,
+                                     orElse: () => LoadStatusItem(
+                                       productId: toElement.productId!.sId ?? "",
+                                       orderedQuantity: toElement.quantity ?? 0,
+                                       loadedQuantity: 0,
+                                       remainingQuantity: toElement.quantity ?? 0,
+                                       status: "",
+                                     ),
+                                   );
 
-                                       Get.to(LoadItemScreen(model, toElement, loadItem.remainingQuantity));
-                                     },
-                                     child: _orderItem(toElement, controller),
-                                   ),
-                                 );
+                                   return Material(
+                                     color: Colors.transparent,
+                                     child: InkWell(
+                                       onTap: () {
+                                         Get.to(LoadItemScreen(model, toElement, loadItem.remainingQuantity));
+                                       },
+                                       child: _orderItem(toElement, controller),
+                                     ),
+                                   );
+                                 }).toList(),
+                               ),
 
-                               }).toList(),
-                             ),
 
                               const SizedBox(height: 10),
                                Text("Sub Total          : ₹ ${model.subtotal??"0"}"),
@@ -503,7 +518,7 @@ class WHActiveOrderScreen extends StatelessWidget {
                   Text("Price Per Unit : ₹ ${model.pricePerUnit}"),
 
                   // Show remaining quantity ONLY for Total / Partiallydispatch
-                  if (loadItem.status == "Total" || loadItem.status == "Partiallydispatch") ...[
+                  if (loadItem.status == "Total" || loadItem.status.toLowerCase() == "partiallydispatch") ...[
                     Text(
                         "Remaining Quantity: ${loadItem.remainingQuantity}",
                         style: TextStyle(

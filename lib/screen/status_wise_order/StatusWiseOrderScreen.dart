@@ -2,6 +2,8 @@
 
 
 
+import 'dart:developer' as developer;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:shree_ram_delivery_app/screen/status_wise_order/StatusWiseOrderController.dart';
 
 import '../../model/DailyAssignedOrderModel.dart';
+import '../../support/alert_dialog_manager.dart';
 import '../wh_active_order/WHActiveOrderScreen.dart';
 
 class StatusWiseOrderScreen extends StatelessWidget {
@@ -98,12 +101,17 @@ class StatusWiseOrderScreen extends StatelessWidget {
               itemCount: controller.historyList.length,
               padding: EdgeInsets.symmetric(horizontal: 20),
               itemBuilder: (BuildContext context, int index) {
+
                 DailyAssignedOrderModel model=controller.historyList[index];
+
                 return  InkWell(
-                    onTap: status != 'Complete' ?
+                    onTap: status == 'Complete' || model.inchargeStatus == 'Complete'?
                         (){
+                          AlertDialogManager().sendMessageAlert(context, 'Error', 'This order has been completed.');
+                    } : (){
+                      print('status: $status \n incharge status: ${model.inchargeStatus}');
                       Get.to(()=>WHActiveOrderScreen(model));
-                    } : (){},
+                    },
                     child: buildDeliveryCard(context,
                         orderId: model.sId??"",
                         name: model.userId!.name??"",
@@ -195,7 +203,7 @@ class StatusWiseOrderScreen extends StatelessWidget {
                 //   ),
                 // ),
                 Text(
-                  status,
+                  status[0].toUpperCase() + status.substring(1),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -224,7 +232,7 @@ class StatusWiseOrderScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            Text("Payment $payment",
+            Text("Payment: $payment",
                 style: const TextStyle(
                     fontSize: 13,
                     color: Colors.black,
