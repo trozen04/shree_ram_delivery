@@ -10,6 +10,7 @@ import 'package:shree_ram_delivery_app/screen/wm_dashboard/WMDashboardScreen.dar
 import 'package:shree_ram_delivery_app/support/PreferenceManager.dart';
 
 import '../login/LoginScreen.dart';
+import '../../constant/ConstantImage.dart';
 
 
 class SplashController extends GetxController {
@@ -93,7 +94,16 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset("assets/logo.png", height: 120),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(ConstantImage.splashImage, width: MediaQuery.of(context).size.width * 0.8),
+            // SizedBox(height: 15,),
+            Text('A venture of BL FOODS & OILS PVT LTD', style: TextStyle(color: Colors.black),)
+          ],
+        ),
       ),
     );
   }
