@@ -213,6 +213,29 @@ Roadmap
  Optimize performance for large-scale order handling.
  Introduce analytics for delivery performance.
 
+Commits:
+1: f61006327124da95ac07c7661e3dae746436f297
+All work of 2025-10-14: status wise orders, from-to date filter, and other updates
+
+2: fe9d4f1d0d741d182daff4f4b05f97347b318db4
+All work of 2025-10-14: status wise orders, from-to date filter, and other updates. Fixed RazoryPay and Pay Later by updating api logic. Integrated Api for all products, bestseller and most popular
+
+3: 008780031b465b471e4f7d7b1219c9557dc7fa02
+
+4: b13014d871f6d1abfea338e87a84751d5cc64e1c
+Integrated loadOrder Api for Partially Order data to caluclate remaining quantity.
+
+5: 278f16d45c1bb37619d85b3e5f091fe2ede3d595
+done testing and updated home appbar design
+
+6: 91e3995533beb2da661b21cd8bdcfa62af67f275
+Updated logo and Splash
+
+7: 2e0b3f58025a8c1d87b3b0bffde444e95739c721
+Updated and changed load order api (removed previous api updatestatus for loading finished) 
+and added getdrivertask api for fetching data of tasks also added isProductionoutofstock api for fetching data while loading."
+
+
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
 Contact
