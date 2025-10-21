@@ -3,32 +3,102 @@ class TaskModel {
   Driverid? driverid;
   Orderid? orderid;
   String? createdAt;
+  List<Product>? products;
+  String? sId;
 
-  TaskModel({this.updatestatus, this.driverid, this.orderid, this.createdAt});
+  bool? isAmountCollected;
+  num? collectAmount;
+  num? remainingAmount;
+  bool? start;
+
+  TaskModel({
+    this.updatestatus,
+    this.driverid,
+    this.orderid,
+    this.createdAt,
+    this.products,
+    this.sId,
+    this.isAmountCollected,
+    this.collectAmount,
+    this.start,
+    this.remainingAmount
+  });
 
   TaskModel.fromJson(Map<String, dynamic> json) {
     updatestatus = json['updatestatus'];
     driverid = json['driverid'] != null
-        ? new Driverid.fromJson(json['driverid'])
+        ? Driverid.fromJson(json['driverid'])
         : null;
-    orderid =
-    json['Orderid'] != null ? new Orderid.fromJson(json['Orderid']) : null;
+    orderid = json['Orderid'] != null
+        ? Orderid.fromJson(json['Orderid'])
+        : null;
     createdAt = json['createdAt'];
+    if (json['products'] != null) {
+      products = <Product>[];
+      json['products'].forEach((v) {
+        products!.add(Product.fromJson(v));
+      });
+    }
+    sId = json['_id'];
+    isAmountCollected = json['isAmountCollected'];
+    collectAmount = json['collectAmount'];
+    remainingAmount = json['remainingAmount'];
+    start = json['start'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['updatestatus'] = this.updatestatus;
-    if (this.driverid != null) {
-      data['driverid'] = this.driverid!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['updatestatus'] = updatestatus;
+    if (driverid != null) data['driverid'] = driverid!.toJson();
+    if (orderid != null) data['Orderid'] = orderid!.toJson();
+    data['createdAt'] = createdAt;
+    if (products != null) {
+      data['products'] = products!.map((v) => v.toJson()).toList();
     }
-    if (this.orderid != null) {
-      data['Orderid'] = this.orderid!.toJson();
-    }
-    data['createdAt'] = this.createdAt;
+    data['_id'] = sId;
+    data['isAmountCollected'] = isAmountCollected;
+    data['collectAmount'] = collectAmount;
+    data['remainingAmount'] = remainingAmount;
+    data['start'] = start;
     return data;
   }
 }
+
+// New Product class to handle the products array
+class Product {
+  String? productid;
+  num? quantity;
+  num? leftquantity;
+  num? orderedQty;
+  String? sId;
+
+  Product({
+    this.productid,
+    this.quantity,
+    this.leftquantity,
+    this.orderedQty,
+    this.sId,
+  });
+
+  Product.fromJson(Map<String, dynamic> json) {
+    productid = json['productid'];
+    quantity = json['quantity'];
+    leftquantity = json['leftquantity'];
+    orderedQty = json['orderedQty'];
+    sId = json['_id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['productid'] = productid;
+    data['quantity'] = quantity;
+    data['leftquantity'] = leftquantity;
+    data['orderedQty'] = orderedQty;
+    data['_id'] = sId;
+    return data;
+  }
+}
+
 
 class Driverid {
   String? sId;

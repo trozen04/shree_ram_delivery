@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:shree_ram_delivery_app/model/DailyAssignedOrderModel.dart';
 import 'package:shree_ram_delivery_app/model/ProfileModel.dart';
@@ -86,19 +87,21 @@ class DashboardController  extends GetxController{
   }
 
   getOrderSummary(BuildContext context){
-    APIConstant.gethitAPI(context,ConstantString.get ,ConstantString.getOrderSummary+"${loginModel.driver!.id}",headers: {
+    APIConstant.gethitAPI(context,ConstantString.get ,ConstantString.getdrivertask+"${loginModel.driver!.id}",headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       "Authorization": "Bearer ${loginModel.driver!.token}"
     }).then((onValue){
       var response=jsonDecode(onValue);
+      developer.log('totalorders: $response');
       homeSummaryModel=HomeSummaryModel.fromJson(response);
       update();
     });
   }
 
 
-  updateStatus(BuildContext context, String id) async {
+  updateStatus(BuildContext context, String id, TaskModel taskModel) async {
+    EasyLoading.show(status: "Submitting...");
     bool serviceEnabled;
     LocationPermission permission;
     Position position;
@@ -118,6 +121,7 @@ class DashboardController  extends GetxController{
     // Check permission status
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
+      EasyLoading.dismiss();
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         // Ask again if denied
@@ -127,7 +131,7 @@ class DashboardController  extends GetxController{
           "Location permission is needed. Please allow access.",
           onTapFunction: () {
             Get.back();
-            updateStatus(context, id); // retry
+            updateStatus(context, id, taskModel); // retry
           },
         );
         return;
@@ -136,6 +140,7 @@ class DashboardController  extends GetxController{
 
     if (permission == LocationPermission.deniedForever) {
       // Permissions denied forever, open app settings
+      EasyLoading.dismiss();
       AlertDialogManager().isErrorAndSuccessAlertDialogMessage(
         context,
         "Permission Required",
@@ -150,11 +155,13 @@ class DashboardController  extends GetxController{
 
     // Permission granted, get location
     try {
+      EasyLoading.show(status: "Submitting...");
       position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
       print(
           "Current Location -> Latitude: ${position.latitude}, Longitude: ${position.longitude}");
     } catch (e) {
+      EasyLoading.dismiss();
       print("Error getting location: $e");
       AlertDialogManager().isErrorAndSuccessAlertDialogMessage(
         context,
@@ -166,10 +173,11 @@ class DashboardController  extends GetxController{
     }
 
     // Call API with pickup coordinates
+    EasyLoading.show(status: "Submitting...");
     APIConstant.gethitAPI(
       context,
       ConstantString.post,
-      "${ConstantString.startDelivery}${loginModel.driver!.id}",
+      "${ConstantString.startDelivery}${loginModel.driver!.id}/${taskModel.sId}",
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -184,6 +192,7 @@ class DashboardController  extends GetxController{
         },
       },
     ).then((onValue) {
+      EasyLoading.dismiss();
       var response = jsonDecode(onValue);
       print(onValue);
       developer.log('res: $response');
@@ -201,13 +210,15 @@ class DashboardController  extends GetxController{
   }
 
   getTodaysOrder(BuildContext context){
-    APIConstant.gethitAPI(context,ConstantString.get ,ConstantString.getTask+"${loginModel.driver!.id}",headers: {
+    APIConstant.gethitAPI(context,ConstantString.get ,"${ConstantString.getTask}${loginModel.driver!.id}",headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       "Authorization": "Bearer ${loginModel.driver!.token}"
     }).then((onValue){
       var response=jsonDecode(onValue);
-      totalOrder=response["todayOrders"]??0;
+      developer.log('response of driver task: ${response}');
+
+      totalOrder=response["totalTasks"]??0;
       taskSummary=TodayTaskSummaryModel.fromJson(response["todayTaskCounts"]);
       if(response["tasks"]!=null){
         print(">>>>>>>>>>>>>>>>>");
@@ -264,9 +275,9 @@ class HomeSummaryModel {
   HomeSummaryModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
     driverId = json['driverId'];
-    totalOrders = json['totalOrders']??0;
-    taskCounts = json['taskCounts'] != null
-        ? new TaskCounts.fromJson(json['taskCounts'])
+    totalOrders = json['count']??0;
+    taskCounts = json['statusSummary'] != null
+        ? new TaskCounts.fromJson(json['statusSummary'])
         : null;
   }
 

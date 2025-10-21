@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:shree_ram_delivery_app/screen/splash/SplashScreen.dart';
 import 'package:shree_ram_delivery_app/support/EasyLoadingConfig.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -14,6 +15,7 @@ FlutterLocalNotificationsPlugin();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await GetStorage.init(); // Initialize GetStorage
 
   // Initialize local notifications
   const AndroidInitializationSettings androidInitSettings =
@@ -37,22 +39,22 @@ void main() async {
     sound: true,
   );
 
-  // 🔹 Get FCM token
+  // Get FCM token
   String? fcmToken = await messaging.getToken();
   print('🔥 FCM Token: $fcmToken');
 
-  // ✅ Save FCM token in SharedPreferences
+  // Save FCM token in SharedPreferences
   if (fcmToken != null) {
     await PreferenceManager.instance.setString("fcm_token", fcmToken);
   }
 
-  // 🔹 Listen for token refresh (in case FCM updates it later)
+  // Listen for token refresh
   FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
     await PreferenceManager.instance.setString("fcm_token", newToken);
     print('🔄 FCM Token refreshed: $newToken');
   });
 
-  // 🔹 Handle foreground messages
+  // Handle foreground messages
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
@@ -64,8 +66,8 @@ void main() async {
         notification.body,
         NotificationDetails(
           android: AndroidNotificationDetails(
-            'default_channel', // channel id
-            'Default', // channel name
+            'default_channel',
+            'Default',
             importance: Importance.max,
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',

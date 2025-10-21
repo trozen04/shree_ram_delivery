@@ -1,16 +1,9 @@
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shree_ram_delivery_app/model/DailyAssignedOrderModel.dart';
 import 'package:shree_ram_delivery_app/model/TaskModel.dart';
-import 'package:shree_ram_delivery_app/screen/active_delivery/ActiveDeliveryController.dart';
 import 'package:shree_ram_delivery_app/screen/active_delivery/ActiveDeliveryScreen.dart';
 import 'package:shree_ram_delivery_app/support/alert_dialog_manager.dart';
-
-import '../../constant/ConstantString.dart';
 import '../../constant/CustomWidget.dart';
-import '../../support/app_theme.dart';
 import 'DashboardController.dart';
 
 class OrderScreen {
@@ -31,7 +24,7 @@ class OrderScreen {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Assigned Orders",
+                "Assigned Tasks",
                 style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w500,
@@ -57,28 +50,28 @@ class OrderScreen {
                 children: [
                   _statusCard(
                     count: controller.totalOrder.toString(),
-                    label: "Total Order",
+                    label: "Total Tasks",
                     color: Colors.blue,
                     textColor: Colors.blue,
                     onTap: () {},
                   ),
                   _statusCard(
                     count: controller.taskSummary.delivered.toString(),
-                    label: "Completed Order",
+                    label: "Completed Tasks",
                     color: Colors.green,
                     textColor: Colors.green,
                     onTap: () {},
                   ),
                   _statusCard(
-                    count: controller.taskSummary.dispatch.toString(),
-                    label: "Pending Order",
+                    count: controller.taskSummary.pending.toString(),
+                    label: "Pending Tasks",
                     color: Colors.red,
                     textColor: Colors.red,
                     onTap: () {},
                   ),
                   _statusCard(
                     count: controller.taskSummary.cancel.toString(),
-                    label: "Canceled Order",
+                    label: "Canceled Tasks",
                     color: Colors.yellow,
                     textColor: Colors.orange,
                     onTap: () {},
@@ -96,9 +89,10 @@ class OrderScreen {
                       Orderid  model=task.orderid??Orderid();
                       return InkWell(
                                 onTap: (){
-                                  if(model.status=="dispatch"){
-                                    controller.updateStatus(context, task.orderid!.sId??"");
-                                  }else if(model.status=="confirmed"){
+                                  if (task.updatestatus == "dispatch" || task.updatestatus == "pending" || task.updatestatus == "partiallyLoaded" ) {
+                                    // treat pending same as dispatch
+                                    controller.updateStatus(context, task.orderid!.sId ?? "", task);
+                                  } else if(task.updatestatus=="confirmed"){
                                     AlertDialogManager.getSnackBarMsg("Message", "The Product Item Not Dispatched by Warehouse Incharge Yet", false, context);
                                   }else {
                                     Get.to(() => ActiveDeliveryScreen(task));
@@ -110,13 +104,22 @@ class OrderScreen {
                                   address:
                                       "${model.deliveryaddress!=null?"${(model.deliveryaddress!.addressline??"")+","+(model.deliveryaddress!.city??"")+","+(model.deliveryaddress!.state??"")+","+(model.deliveryaddress!.pin??"").toString()+","}":""}",
                                   phone: "+91 ${model.userId!=null?model.userId!.mobileno??"":""}",
-                                  payment: model.paymentmethod=="cod"?"Cash - ₹${model.grandTotal??""}":"${model.paymentmethod=="paylater"?"Paylater - ₹${model.grandTotal??""}":""}",
-                                  status: model.status??"",
+                                  payment: model.paymentmethod == "cod"
+                                      ? (task.remainingAmount != null && task.remainingAmount != 0
+                                      ? "Remaining - ₹${task.remainingAmount}"
+                                      : (task.isAmountCollected == true
+                                      ? "Cash Collected - ₹${task.collectAmount ?? model.grandTotal ?? ""}"
+                                      : "Cash - ₹${model.grandTotal ?? ""}"))
+                                      : (model.paymentmethod == "paylater"
+                                      ? "Paylater - ₹${model.grandTotal ?? ""}"
+                                      : ""),
+
+                                  status: task.updatestatus??"",
                                   onActionTap: () {
                                     // Same logic here
-                                    if(model.status=="dispatch"){
-                                      controller.updateStatus(context, task.orderid!.sId??"");
-                                    } else if(model.status=="confirmed"){
+                                    if (task.updatestatus == "dispatch" || task.updatestatus == "pending" || task.updatestatus == "partiallyLoaded" ) {
+                                      controller.updateStatus(context, task.orderid!.sId??"", task);
+                                    } else if(task.updatestatus=="confirmed"){
                                       AlertDialogManager.getSnackBarMsg(
                                           "Message",
                                           "The Product Item Not Dispatched by Warehouse Incharge Yet",
@@ -178,21 +181,26 @@ class OrderScreen {
     );
   }
 
-  static Widget buildDeliveryCard(context,{
+  static Widget buildDeliveryCard(context, {
     required String orderId,
     required String name,
     required String address,
     required String phone,
     required String payment,
     required String status,
-    VoidCallback? onActionTap, // new parameter
+    VoidCallback? onActionTap,
   }) {
+    // Normalize status
+    final normalizedStatus = status.trim().toLowerCase();
+
     Color statusColor;
     String actionText;
     Color actionColor;
 
-    switch (status) {
+    switch (normalizedStatus) {
       case "dispatch":
+      case "pending":
+      case "partiallyloaded":
         statusColor = Colors.blue;
         actionText = "Start Delivery";
         actionColor = Colors.blue;
@@ -202,29 +210,25 @@ class OrderScreen {
         actionText = "Not Dispatched";
         actionColor = Colors.grey;
         break;
-      case "OFD":
+      case "ofd":
         statusColor = Colors.teal;
         actionText = "Navigate";
         actionColor = Colors.green;
         break;
       case "delivered":
+      case "partiallydelivered":
         statusColor = Colors.green;
         actionText = "Completed";
         actionColor = Colors.green;
         break;
-      // case "Delivery Failed":
-      //   statusColor = Colors.red;
-      //   actionText = "Failed";
-      //   actionColor = Colors.red;
-      //   break;
-      case "cancelled":
+      case "cancel":
         statusColor = Colors.red;
         actionText = "Canceled";
         actionColor = Colors.red;
         break;
       default:
         statusColor = Colors.black54;
-        actionText = "Update";
+        actionText = status.isNotEmpty ? status : "Unknown";
         actionColor = Colors.black54;
     }
 
@@ -232,26 +236,19 @@ class OrderScreen {
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15)
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Order ID + Status
+            // Status Text
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Text(
-                //   "#$orderId",
-                //   style: const TextStyle(
-                //     fontSize: 14,
-                //     fontWeight: FontWeight.w600,
-                //   ),
-                // ),
                 Text(
-                  status,
+                  actionText,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -260,52 +257,52 @@ class OrderScreen {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
 
+            const SizedBox(height: 8),
             // Customer Info
-            Text(name,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
             const SizedBox(height: 4),
-            Text(address,
-                style: const TextStyle(fontSize: 13, color: Colors.black54)),
+            Text(address, style: const TextStyle(fontSize: 13, color: Colors.black54)),
             const SizedBox(height: 4),
             Row(
               children: [
                 const Icon(Icons.phone, size: 14, color: Colors.grey),
                 const SizedBox(width: 4),
-                Text(phone,
-                    style:
-                        const TextStyle(fontSize: 13, color: Colors.black87)),
+                Text(phone, style: const TextStyle(fontSize: 13, color: Colors.black87)),
               ],
             ),
             const SizedBox(height: 6),
-            Text("Payment $payment",
-                style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500)),
+            Text("Payment $payment", style: const TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.w500)),
             const SizedBox(height: 12),
-
             // Action Button
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 SizedBox(
                   height: 35,
-                  child:  CustomWidget.elevatedCustomButton(context, actionText,
-                      onActionTap ?? () {
-                        print('action: $actionText'); // fallback
-                      },
-                      bgColor: statusColor.withOpacity(0.1),borderColor: statusColor,borderRadius: 25,textColor: statusColor),
+                  child: CustomWidget.elevatedCustomButton(
+                    context,
+                    actionText,
+                    onActionTap != null
+                        ? () {
+                      print('action: $actionText'); // print first
+                      onActionTap(); // then execute provided callback
+                    }
+                        : () {
+                      print('action: $actionText'); // fallback
+                    },
+                    bgColor: statusColor.withOpacity(0.1),
+                    borderColor: statusColor,
+                    borderRadius: 25,
+                    textColor: statusColor,
+                  ),
                 )
-
               ],
-            )
-
+            ),
           ],
         ),
       ),
     );
   }
+
 }

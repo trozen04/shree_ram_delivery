@@ -15,6 +15,7 @@ class ConstantString {
   static final String updateDetails = "${base_Url}employee/updateremaingdetails/";
   static final String getProfile = "${base_Url}employee/getdriverdetailsbyid/";
   static final String getTask = "${base_Url}driver/getalltodaysorderfordriver/";
+  static final String getdrivertask = "${base_Url}driver/getdrivertask/";
   static final String startDelivery = "${base_Url}driver/startdelivery/";
   static final String getCollectedAmount = "${base_Url}driver/collectamount";
   static final String getOrderSummary = "${base_Url}driver/totalorderofdriver/";
@@ -34,6 +35,7 @@ class ConstantString {
   static final String  gettodayordersummary= "${base_Url}incharge/gettodayordersummary/";
   static final String  inchargeordersummary= "${base_Url}incharge/inchargeordersummary/";
   static final String  getRemainingProductCount= "${base_Url}incharge/getinchargeorderloadstatus/";
+  static final String  getDrivers= "${base_Url}incharge/getdrivers/";
 
 
 

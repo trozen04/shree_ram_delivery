@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Image.asset(ConstantImage.splashImage, width: MediaQuery.of(context).size.width * 0.8),
             // SizedBox(height: 15,),
-            Text('A venture of BL FOODS & OILS PVT LTD', style: TextStyle(color: Colors.black),)
+            Text('A venture of BL FOODS & OILS PVT LTD', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),)
           ],
         ),
       ),

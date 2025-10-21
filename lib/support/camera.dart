@@ -11,7 +11,7 @@ import 'package:image_picker/image_picker.dart';
 class ImagePickerConst extends StatefulWidget {
   final List<CameraDescription>? cameras;
   String? type = "";
-  ImagePickerConst({this.cameras, this.type, Key? key}) : super(key: key);
+  ImagePickerConst({this.cameras, this.type, super.key});
 
   @override
   _ImagePickerConstState createState() => _ImagePickerConstState();

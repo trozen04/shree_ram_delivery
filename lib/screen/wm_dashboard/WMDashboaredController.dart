@@ -183,6 +183,7 @@ class  WMDashboaredController  extends GetxController{
       "Authorization": "Bearer ${loginModel.driver!.token}"
     }).then((onValue){
       var response=jsonDecode(onValue);
+      developer.log('incharge order: $response');
       if(response["orders"]!=null){
         dailyAssignedList.clear();
         response["orders"].forEach((value){

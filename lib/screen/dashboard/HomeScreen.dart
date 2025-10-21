@@ -35,13 +35,13 @@ class HomeScreen{
                 children: [
                   Expanded(
                     child:  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children:  [
                         if(controller.profileModel.employee!=null)
                         Text("Hello, ${controller.profileModel.employee!.name}",style:TextStyle(color: Colors.black,fontWeight: FontWeight.w500,fontSize: 18),),
                          SizedBox(height: 8,),
                         Text("Ready to hit the road? Your deliveries await.",style:TextStyle(color: Colors.grey,fontWeight: FontWeight.w300,fontSize: 12),),
                       ],
-                      crossAxisAlignment: CrossAxisAlignment.start,
                     ),
                   ),
                   Container(

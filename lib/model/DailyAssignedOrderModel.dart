@@ -13,7 +13,7 @@ class DailyAssignedOrderModel {
   String? paymentmethod;
   String? paymentType;
   String? payLaterDate;
-  List<String>? driverId;
+  List<dynamic>? driverId;
   num? redeempoints;
   String? status;
   String? orderDate;
@@ -76,7 +76,7 @@ class DailyAssignedOrderModel {
     paymentmethod = json['paymentmethod'];
     paymentType = json['paymentType'];
     payLaterDate = json['payLaterDate'];
-    driverId = json['driverId'].cast<String>();
+    driverId = json['driverId'];
     redeempoints = json['redeempoints'];
     status = json['status'];
     orderDate = json['orderDate'];
@@ -158,6 +158,7 @@ class Items {
   num? discountApplied;
   num? totalPrice;
   String? sId;
+  String? unit;
 
   Items(
       {this.productId,
