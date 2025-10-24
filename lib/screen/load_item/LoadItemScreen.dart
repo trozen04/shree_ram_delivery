@@ -16,7 +16,61 @@ class LoadItemScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> units = ['Bori', 'Bottle', 'Pack'];
+
+    Widget unitSelector(LoadItemController controller) {
+      // Get unit from Items or ProductId
+      String? defaultUnit = toElement.unit ?? toElement.productId?.units;
+      print('Default unit from model: $defaultUnit'); // debug
+
+      // Treat null, empty, or "N/A" as missing
+      if (defaultUnit != null && defaultUnit.isNotEmpty && defaultUnit.toLowerCase() != 'n/a') {
+        // Unit exists, show read-only
+        controller.unitController.text = defaultUnit;
+        print('Using default unit: ${controller.unitController.text}');
+        return TextField(
+          controller: controller.unitController,
+          readOnly: true,
+          decoration: InputDecoration(
+            labelText: "Unit",
+            filled: true,
+            fillColor: Colors.grey[200],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        );
+      } else {
+        // Unit is null/empty/N/A, show dropdown
+        final List<String> units = ['Bori', 'Bottle', 'Pack']; // you can also get from API if needed
+        return DropdownButtonFormField<String>(
+          value: controller.unitController.text.isNotEmpty
+              ? controller.unitController.text
+              : null,
+          decoration: InputDecoration(
+            hintText: 'Select Unit',
+            filled: true,
+            fillColor: Colors.grey[200],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+          ),
+          items: units.map((unit) {
+            return DropdownMenuItem<String>(
+              value: unit,
+              child: Text(unit),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              controller.unitController.text = value;
+              print('Unit selected: $value');
+            }
+          },
+        );
+      }
+    }
 
     return GetBuilder(
       init: Get.put(
@@ -149,32 +203,8 @@ class LoadItemScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              DropdownButtonFormField<String>(
-                                value: controller.unitController.text.isNotEmpty
-                                    ? controller.unitController.text
-                                    : null, // Set initial value if any
-                                decoration: InputDecoration(
-                                  hintText: 'Select Unit',
-                                  filled: true,
-                                  fillColor: Colors.grey[200],
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                ),
-                                items: units.map((unit) {
-                                  return DropdownMenuItem<String>(
-                                    value: unit,
-                                    child: Text(unit),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    controller.unitController.text = value;
-                                    print('Unit selected: $value');
-                                  }
-                                },
-                              ),
+                              unitSelector(controller),
+
                               const SizedBox(height: 12),
                               TextField(
                                 controller: controller.balanceLeftController,

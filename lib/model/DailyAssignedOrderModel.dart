@@ -9,6 +9,8 @@ class DailyAssignedOrderModel {
   num? totalDiscount;
   num? totalLabourCharge;
   num? grandTotal;
+  num? collectAmount;
+  num? remainingAmount;
   Deliveryaddress? deliveryaddress;
   String? paymentmethod;
   String? paymentType;
@@ -35,6 +37,8 @@ class DailyAssignedOrderModel {
         this.totalDiscount,
         this.totalLabourCharge,
         this.grandTotal,
+        this.collectAmount,
+        this.remainingAmount,
         this.deliveryaddress,
         this.paymentmethod,
         this.paymentType,
@@ -70,6 +74,8 @@ class DailyAssignedOrderModel {
     totalDiscount = json['totalDiscount'];
     totalLabourCharge = json['totalLabourCharge'];
     grandTotal = json['grandTotal'];
+    collectAmount = json['collectAmount'];
+    remainingAmount = json['remainingAmount'];
     deliveryaddress = json['deliveryaddress'] != null
         ? new Deliveryaddress.fromJson(json['deliveryaddress'])
         : null;
@@ -106,6 +112,8 @@ class DailyAssignedOrderModel {
     data['totalDiscount'] = this.totalDiscount;
     data['totalLabourCharge'] = this.totalLabourCharge;
     data['grandTotal'] = this.grandTotal;
+    data['collectAmount'] = this.collectAmount;
+    data['remainingAmount'] = this.remainingAmount;
     if (this.deliveryaddress != null) {
       data['deliveryaddress'] = this.deliveryaddress!.toJson();
     }
@@ -125,6 +133,29 @@ class DailyAssignedOrderModel {
     return data;
   }
 }
+
+class DriverId {
+  String? id;
+  String? name;
+  String? email;
+
+  DriverId({this.id, this.name, this.email});
+
+  DriverId.fromJson(Map<String, dynamic> json) {
+    id = json['_id'];
+    name = json['name'];
+    email = json['email'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = id;
+    data['name'] = name;
+    data['email'] = email;
+    return data;
+  }
+}
+
 
 class UserId {
   String? sId;
@@ -158,40 +189,45 @@ class Items {
   num? discountApplied;
   num? totalPrice;
   String? sId;
-  String? unit;
+  String? unit; // <-- keep unit here
 
-  Items(
-      {this.productId,
-        this.quantity,
-        this.pricePerUnit,
-        this.discountApplied,
-        this.totalPrice,
-        this.sId});
+  Items({
+    this.productId,
+    this.quantity,
+    this.pricePerUnit,
+    this.discountApplied,
+    this.totalPrice,
+    this.sId,
+    this.unit, // <-- add to constructor
+  });
 
   Items.fromJson(Map<String, dynamic> json) {
     productId = json['productId'] != null
-        ? new ProductId.fromJson(json['productId'])
+        ? ProductId.fromJson(json['productId'])
         : null;
     quantity = json['quantity'];
     pricePerUnit = json['pricePerUnit'];
     discountApplied = json['discountApplied'];
     totalPrice = json['totalPrice'];
     sId = json['_id'];
+    unit = json['units']; // <-- add this line
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.productId != null) {
-      data['productId'] = this.productId!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (productId != null) {
+      data['productId'] = productId!.toJson();
     }
-    data['quantity'] = this.quantity;
-    data['pricePerUnit'] = this.pricePerUnit;
-    data['discountApplied'] = this.discountApplied;
-    data['totalPrice'] = this.totalPrice;
-    data['_id'] = this.sId;
+    data['quantity'] = quantity;
+    data['pricePerUnit'] = pricePerUnit;
+    data['discountApplied'] = discountApplied;
+    data['totalPrice'] = totalPrice;
+    data['_id'] = sId;
+    data['units'] = unit; // <-- add this line
     return data;
   }
 }
+
 
 class ProductId {
   String? sId;
@@ -200,6 +236,7 @@ class ProductId {
   List<String>? productimage;
   String? description;
   String? id;
+  String? units;
 
   ProductId(
       {this.sId,
@@ -207,7 +244,9 @@ class ProductId {
         this.brand,
         this.productimage,
         this.description,
-        this.id});
+        this.id,
+        this.units
+      });
 
   ProductId.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -216,6 +255,7 @@ class ProductId {
     productimage = json['productimage'].cast<String>();
     description = json['description'];
     id = json['id'];
+    units = json['units'];
   }
 
   Map<String, dynamic> toJson() {
@@ -226,6 +266,7 @@ class ProductId {
     data['productimage'] = this.productimage;
     data['description'] = this.description;
     data['id'] = this.id;
+    data['units'] = this.units;
     return data;
   }
 }

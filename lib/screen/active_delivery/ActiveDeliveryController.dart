@@ -23,6 +23,7 @@ class ActiveDeliveryController extends GetxController {
   ActiveDeliveryController(this.context);
 
   var latestDeliveryCharge = 0.0.obs; // default
+  var totalGrandTotal = 0.0.obs; // default
 
   TextEditingController collectedAmountTextCon = TextEditingController();
   TextEditingController noteTextCon = TextEditingController();

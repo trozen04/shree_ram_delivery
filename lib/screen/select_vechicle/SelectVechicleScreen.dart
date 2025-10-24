@@ -10,6 +10,8 @@ import 'package:shree_ram_delivery_app/constant/CustomWidget.dart';
 import 'package:shree_ram_delivery_app/screen/select_vechicle/SelectVechicleController.dart';
 import 'package:shree_ram_delivery_app/screen/upload_doc/UploadDocumentScreen.dart';
 
+import '../login/LoginScreen.dart';
+
 class SelectVechicleScreen extends StatelessWidget {
   const SelectVechicleScreen({super.key});
 
@@ -20,13 +22,12 @@ class SelectVechicleScreen extends StatelessWidget {
         builder: (controller){
       return SafeArea(child: Scaffold(
         appBar: AppBar(
-          leading: BackButton(
-            style: ButtonStyle(
-                shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50),
-                    side: BorderSide(color: Colors.grey)
-                ))
-            ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              // Go back to LoginScreen and clear stack
+              Get.offAll(() => LoginScreen());
+            },
           ),
           toolbarHeight: 70,
           surfaceTintColor:Colors.transparent,

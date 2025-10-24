@@ -36,11 +36,24 @@ class WHActiveOrderController extends GetxController {
     getUserDetails();
   }
 
+  @override
+  void onClose() {
+    // Automatically clear related controller when this one is disposed
+    try {
+      final loadItemController = Get.find<LoadItemController>(tag: model.sId);
+      loadItemController.clearLoadedItems();
+      Get.delete<LoadItemController>(tag: model.sId, force: true);
+    } catch (_) {}
+    super.onClose();
+  }
+
+
   Future<void> getUserDetails() async {
     try {
       loginModel = await PreferenceManager.instance.getUserDetails();
       await Future.wait([
         getProfile(),
+
         getDriverProfile(),
         getInchargeOrderLoadStatus(context, loginModel.driver?.id ?? "", model.sId ?? ""),
       ]);
@@ -85,7 +98,7 @@ class WHActiveOrderController extends GetxController {
                   (e) => e['productId'] == item.productId?.sId,
               orElse: () => null,
             );
-            item.unit = matchedItem?['unit']?.toString() ?? "N/A";
+            item.unit = matchedItem?['units']?.toString() ?? "";
           }
           update();
         }
@@ -122,35 +135,60 @@ class WHActiveOrderController extends GetxController {
     }
   }
 
+
   Future<void> getDriverProfile() async {
+    print('getDriverProfile called');
     try {
-      String driverProfileIdString = "";
-      if (model.driverId != null && model.driverId!.isNotEmpty) {
-        var driverData = model.driverId!.first; // This is now dynamic
-        if (driverData is Map) {
-          driverProfileIdString = driverData['_id']?.toString() ?? "";
-        } else {
-          driverProfileIdString = driverData.toString();
-        }
+      if (model.driverId == null) {
+        print('model.driverId is null');
+        return;
       }
-      // --- End Fix ---
+      if (model.driverId!.isEmpty) {
+        print('model.driverId is empty');
+        return;
+      }
+
+      var driverData = model.driverId!.first;
+      print('driverData raw: $driverData');
+
+      String driverProfileIdString = "";
+      if (driverData is DriverId) {
+        driverProfileIdString = driverData.id ?? "";
+        print('DriverId object: $driverProfileIdString');
+      } else if (driverData is Map) {
+        driverProfileIdString = driverData['_id']?.toString() ?? "";
+        print('DriverId map: $driverProfileIdString');
+      } else if (driverData is String) {
+        driverProfileIdString = driverData;
+        print('DriverId string: $driverProfileIdString');
+      } else {
+        print('Unexpected driverData type: ${driverData.runtimeType}');
+      }
+
+      if (driverProfileIdString.isEmpty) {
+        print('driverProfileIdString is empty, skipping API call');
+        return;
+      }
 
       final response = await APIConstant.gethitAPI(
         context,
         ConstantString.get,
-        ConstantString.getProfile + driverProfileIdString, // <-- USE FIXED STRING
+        ConstantString.getProfile + driverProfileIdString,
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          "Authorization": "Bearer ${loginModel.driver!.token}",
+          'Authorization': "Bearer ${loginModel.driver?.token ?? ""}",
         },
       );
+
       driverProfileModel = ProfileModel.fromJson(jsonDecode(response));
+      print('Driver profile fetched: ${driverProfileModel.employee?.name}');
       update();
     } catch (e) {
       print("Error in getDriverProfile: $e");
     }
   }
+
 
   Future<void> navigateAndDisplaySelection(BuildContext context, int option, int type) async {
     var result;
@@ -205,7 +243,10 @@ class WHActiveOrderController extends GetxController {
     // Extract driverId
     String driverIdString = "";
     if (model.driverId != null && model.driverId!.isNotEmpty) {
+
       var driverData = model.driverId!.first;
+      print('getLoadOrder driverData: $driverData');
+
       if (driverData is Map) {
         driverIdString = driverData['_id']?.toString() ?? "";
       } else {
@@ -219,6 +260,7 @@ class WHActiveOrderController extends GetxController {
       "accept": "application/json",
       "Authorization": "Bearer ${loginModel.driver!.token ?? ""}",
     });
+    print('getLoadOrder data: init');
 
     request.fields['vehicleno'] = vehicleNoController.text;
     request.fields['driverId'] = driverIdString;

@@ -269,6 +269,9 @@ class LoadItemController extends GetxController {
         onTapFunction: () {
           print('Navigating back after successful save');
           Get.back();
+          Future.delayed(const Duration(milliseconds: 100), () {
+            Get.back(); // navigates back to previous screen
+          });
         },
       );
     } else {

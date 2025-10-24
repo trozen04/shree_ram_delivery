@@ -8,6 +8,7 @@ class TaskModel {
 
   bool? isAmountCollected;
   num? collectAmount;
+  num? collectableAmount;
   num? remainingAmount;
   bool? start;
 
@@ -20,6 +21,7 @@ class TaskModel {
     this.sId,
     this.isAmountCollected,
     this.collectAmount,
+    this.collectableAmount,
     this.start,
     this.remainingAmount
   });
@@ -42,6 +44,7 @@ class TaskModel {
     sId = json['_id'];
     isAmountCollected = json['isAmountCollected'];
     collectAmount = json['collectAmount'];
+    collectableAmount = json['collectableAmount'];
     remainingAmount = json['remainingAmount'];
     start = json['start'];
   }
@@ -58,6 +61,7 @@ class TaskModel {
     data['_id'] = sId;
     data['isAmountCollected'] = isAmountCollected;
     data['collectAmount'] = collectAmount;
+    data['collectableAmount'] = collectableAmount;
     data['remainingAmount'] = remainingAmount;
     data['start'] = start;
     return data;
@@ -66,10 +70,10 @@ class TaskModel {
 
 // New Product class to handle the products array
 class Product {
-  String? productid;
+  ProductId? productid;
   num? quantity;
-  num? leftquantity;
-  num? orderedQty;
+  num? leftquantity;   // ✅ new
+  num? orderedQty;     // ✅ new
   String? sId;
 
   Product({
@@ -81,19 +85,21 @@ class Product {
   });
 
   Product.fromJson(Map<String, dynamic> json) {
-    productid = json['productid'];
+    productid = json['productid'] != null
+        ? ProductId.fromJson(json['productid'])
+        : null;
     quantity = json['quantity'];
-    leftquantity = json['leftquantity'];
-    orderedQty = json['orderedQty'];
+    leftquantity = json['leftquantity']; // map from JSON
+    orderedQty = json['orderedQty'];     // map from JSON
     sId = json['_id'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['productid'] = productid;
+    if (productid != null) data['productid'] = productid!.toJson();
     data['quantity'] = quantity;
-    data['leftquantity'] = leftquantity;
-    data['orderedQty'] = orderedQty;
+    data['leftquantity'] = leftquantity; // add to JSON
+    data['orderedQty'] = orderedQty;     // add to JSON
     data['_id'] = sId;
     return data;
   }
@@ -308,24 +314,31 @@ class UserId {
 class Items {
   ProductId? productId;
   num? quantity;
+  num? leftquantity;   // ✅ new
+  num? orderedQty;     // ✅ new
   num? pricePerUnit;
   num? discountApplied;
   num? totalPrice;
   String? sId;
 
-  Items(
-      {this.productId,
-        this.quantity,
-        this.pricePerUnit,
-        this.discountApplied,
-        this.totalPrice,
-        this.sId});
+  Items({
+    this.productId,
+    this.quantity,
+    this.leftquantity,
+    this.orderedQty,
+    this.pricePerUnit,
+    this.discountApplied,
+    this.totalPrice,
+    this.sId,
+  });
 
   Items.fromJson(Map<String, dynamic> json) {
     productId = json['productId'] != null
-        ? new ProductId.fromJson(json['productId'])
+        ? ProductId.fromJson(json['productId'])
         : null;
     quantity = json['quantity'];
+    leftquantity = json['leftquantity'];  // new
+    orderedQty = json['orderedQty'];      // new
     pricePerUnit = json['pricePerUnit'];
     discountApplied = json['discountApplied'];
     totalPrice = json['totalPrice'];
@@ -333,15 +346,15 @@ class Items {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.productId != null) {
-      data['productId'] = this.productId!.toJson();
-    }
-    data['quantity'] = this.quantity;
-    data['pricePerUnit'] = this.pricePerUnit;
-    data['discountApplied'] = this.discountApplied;
-    data['totalPrice'] = this.totalPrice;
-    data['_id'] = this.sId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (productId != null) data['productId'] = productId!.toJson();
+    data['quantity'] = quantity;
+    data['leftquantity'] = leftquantity;
+    data['orderedQty'] = orderedQty;
+    data['pricePerUnit'] = pricePerUnit;
+    data['discountApplied'] = discountApplied;
+    data['totalPrice'] = totalPrice;
+    data['_id'] = sId;
     return data;
   }
 }
@@ -349,27 +362,42 @@ class Items {
 class ProductId {
   String? sId;
   String? productname;
+  num? baseprice;
+  num? finalprice;
   List<String>? productimage;
-  String? id;
 
-  ProductId({this.sId, this.productname, this.productimage, this.id});
+  ProductId({
+    this.sId,
+    this.productname,
+    this.baseprice,
+    this.finalprice,
+    this.productimage,
+  });
 
   ProductId.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     productname = json['productname'];
-    productimage = json['productimage'].cast<String>();
-    id = json['id'];
+    baseprice = json['baseprice'];
+    finalprice = json['finalprice'];
+    // ✅ Fix here
+    if (json['productimage'] != null) {
+      productimage = List<String>.from(json['productimage']);
+    } else {
+      productimage = [];
+    }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['productname'] = this.productname;
-    data['productimage'] = this.productimage;
-    data['id'] = this.id;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['productname'] = productname;
+    data['baseprice'] = baseprice;
+    data['finalprice'] = finalprice;
+    data['productimage'] = productimage;
     return data;
   }
 }
+
 
 class Deliveryaddress {
   Location? location;

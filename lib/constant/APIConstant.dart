@@ -103,9 +103,9 @@ class  APIConstant{
       }
     } catch (e) {
       EasyLoadingConfig.dismiss();
-      AlertDialogManager().isErrorAndSuccessAlertDialogMessage(context, "Exception",'Oops! Something went wrong. Please try again later.',onTapFunction: (){
-        Get.back();
-      });
+      // AlertDialogManager().isErrorAndSuccessAlertDialogMessage(context, "Exception",'Oops! Something went wrong. Please try again later.',onTapFunction: (){
+      //   Get.back();
+      // });
     }
     if(responsebody!=null) {
       return Future.value(responsebody);

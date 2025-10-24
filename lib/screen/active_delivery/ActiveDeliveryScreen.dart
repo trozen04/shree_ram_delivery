@@ -1,3 +1,4 @@
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
@@ -127,7 +128,7 @@ class ActiveDeliveryScreen extends StatelessWidget {
 
                                   onTap: () async {
                                     print('nav tapped');
-
+                                    EasyLoading.show();
                                     List<double>? coordinates = model
                                         .orderid
                                         ?.deliveryaddress
@@ -140,6 +141,7 @@ class ActiveDeliveryScreen extends StatelessWidget {
                                       bool serviceEnabled = await Geolocator
                                           .isLocationServiceEnabled();
                                       if (!serviceEnabled) {
+                                        EasyLoading.dismiss();
                                         print(
                                             'Location services are disabled.');
                                         return;
@@ -149,10 +151,12 @@ class ActiveDeliveryScreen extends StatelessWidget {
                                           await Geolocator.checkPermission();
                                       if (permission ==
                                           LocationPermission.denied) {
+                                        EasyLoading.dismiss();
                                         permission = await Geolocator
                                             .requestPermission();
                                         if (permission ==
                                             LocationPermission.denied) {
+
                                           print('Location permission denied');
                                           return;
                                         }
@@ -160,6 +164,7 @@ class ActiveDeliveryScreen extends StatelessWidget {
 
                                       if (permission ==
                                           LocationPermission.deniedForever) {
+                                        EasyLoading.dismiss();
                                         print(
                                             'Location permission permanently denied.');
                                         return;
@@ -184,15 +189,20 @@ class ActiveDeliveryScreen extends StatelessWidget {
                                     bool granted = await controller
                                         .checkLocationPermissionAndService();
                                     if (granted) {
-                                      final latestCharge = await Get.to(() =>
+                                      EasyLoading.dismiss();
+                                      final result = await Get.to(() =>
                                           LiveTrackingScreen(model, lat, lng));
-                                      if (latestCharge != null) {
-                                        developer.log(
-                                            'latest charge: $latestCharge');
-                                        controller.latestDeliveryCharge.value =
-                                            latestCharge;
-                                        controller
-                                            .update(); // refresh UI if needed
+                                      if (result != null && result is Map<String, dynamic>) {
+                                        final latestCharge = result["latestCharge"];
+                                        final totalGrandTotal = result["totalGrandTotal"];
+                                        final grandTotal = result["grandTotal"];
+
+                                        developer.log('latest charge: $latestCharge, total grand total: $totalGrandTotal');
+
+                                        controller.latestDeliveryCharge.value = latestCharge;
+                                        controller.totalGrandTotal = totalGrandTotal;
+
+                                        controller.update(); // refresh UI if needed
                                       }
                                     }
                                   },
@@ -334,7 +344,7 @@ class ActiveDeliveryScreen extends StatelessWidget {
                               const SizedBox(height: 10),
                               if (model.orderid != null)
                                 Text(
-                                    "Sub Total : ₹${model.orderid!.subtotal ?? "0"}"),
+                                    "Sub Total : ₹${model.collectableAmount ?? "0"}"),
                               // if(model.orderid!=null)
                               // Text("Delivery Fee     : ₹${model.orderid!.deliverycharge??"0"}"),
                               Obx(() => Text(
@@ -350,7 +360,7 @@ class ActiveDeliveryScreen extends StatelessWidget {
                                 Obx(() {
                                   // Safely parse numeric values
                                   final double grandTotal = double.tryParse(
-                                          "${model.orderid?.grandTotal ?? 0}") ??
+                                          "${model.collectableAmount ?? 0}") ??
                                       0;
                                   final double deliveryFee = controller
                                               .latestDeliveryCharge.value !=
@@ -363,12 +373,11 @@ class ActiveDeliveryScreen extends StatelessWidget {
 
                                   final double totalAmount =
                                       grandTotal + deliveryFee;
-
                                   return Text(
-                                    "Amount To Be Collected : ₹$totalAmount",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                    "Amount To Be Collected : ₹ ${controller.totalGrandTotal > 0 ? controller.totalGrandTotal : totalAmount}",
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   );
+
                                 }),
 
                               SizedBox(
@@ -582,6 +591,17 @@ class ActiveDeliveryScreen extends StatelessWidget {
                                                     .productId?.sId ??
                                                 "");
                                       } else {
+                                        if (controller.base64Profile.isEmpty) {
+                                          // No image selected
+                                          Get.snackbar(
+                                            "Image Required",
+                                            "Please click/select an image before submitting delivery.",
+                                            snackPosition: SnackPosition.BOTTOM,
+                                            backgroundColor: Colors.redAccent,
+                                            colorText: Colors.white,
+                                          );
+                                          return; // stop submission
+                                        }
                                         controller.deliveredOrder(
                                             context,
                                             model.orderid!.sId ?? "",
@@ -630,9 +650,10 @@ class ActiveDeliveryScreen extends StatelessWidget {
     Product? matchingProduct;
     if (taskModel.products != null && taskModel.products!.isNotEmpty) {
       matchingProduct = taskModel.products!.firstWhere(
-        (product) => product.productid == data.sId,
-        orElse: () => Product(quantity: 0), // Fallback if no match is found
+            (product) => product.productid?.sId == data.sId,
+        orElse: () => Product(quantity: 0),
       );
+
     }
 
     return Container(
@@ -685,7 +706,7 @@ class ActiveDeliveryScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "${data.productname ?? ""}",
+                  "${data.productname ?? ""}", // Product name
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -693,15 +714,15 @@ class ActiveDeliveryScreen extends StatelessWidget {
                 ),
                 Text("Price Per Unit: ₹${model.pricePerUnit ?? 0}"),
                 Text(
-                  "Ordered Quantity: ${model.quantity ?? 0}",
+                  "Ordered Quantity: ${model.quantity ?? 0}", // Original order quantity
                   style: const TextStyle(fontSize: 12, color: Colors.black54),
                 ),
                 Text(
-                  "Assigned Quantity: ${matchingProduct?.quantity ?? 0}",
+                  "Assigned Quantity: ${matchingProduct?.quantity ?? 0}", // How much driver got assigned
                   style: const TextStyle(fontSize: 12, color: Colors.black54),
                 ),
                 Text(
-                  "Left Quantity: ${matchingProduct?.leftquantity ?? 0}",
+                  "Left Quantity: ${matchingProduct?.leftquantity ?? 0}", // Remaining quantity to deliver
                   style: const TextStyle(fontSize: 12, color: Colors.black54),
                 ),
               ],

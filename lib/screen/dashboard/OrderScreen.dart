@@ -24,7 +24,7 @@ class OrderScreen {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Assigned Tasks",
+                "Assigned Tasks (Today)",
                 style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w500,
@@ -102,18 +102,25 @@ class OrderScreen {
                                   orderId:model.sId??"",
                                   name:model.userId!=null? model.userId!.name??"":"",
                                   address:
-                                      "${model.deliveryaddress!=null?"${(model.deliveryaddress!.addressline??"")+","+(model.deliveryaddress!.city??"")+","+(model.deliveryaddress!.state??"")+","+(model.deliveryaddress!.pin??"").toString()+","}":""}",
+                                      "${model.deliveryaddress!=null?"${(model.deliveryaddress!.addressline??"")+","+(model.deliveryaddress!.city??"")+","+(model.deliveryaddress!.state??"")+","+(model.deliveryaddress!.pin??"").toString()+","}":"Delhi"}",
                                   phone: "+91 ${model.userId!=null?model.userId!.mobileno??"":""}",
                                   payment: model.paymentmethod == "cod"
-                                      ? (task.remainingAmount != null && task.remainingAmount != 0
-                                      ? "Remaining - ₹${task.remainingAmount}"
-                                      : (task.isAmountCollected == true
-                                      ? "Cash Collected - ₹${task.collectAmount ?? model.grandTotal ?? ""}"
-                                      : "Cash - ₹${model.grandTotal ?? ""}"))
-                                      : (model.paymentmethod == "paylater"
-                                      ? "Paylater - ₹${model.grandTotal ?? ""}"
-                                      : ""),
+                                      ? (() {
+                                    final collected = task.isAmountCollected == true;
+                                    final collectedAmount = task.collectAmount ?? 0;
+                                    final collectableAmount = task.collectableAmount ?? model.grandTotal ?? 0;
 
+                                    if (collected && collectedAmount > 0) {
+                                      return "Collected - ₹$collectedAmount";
+                                    } else if (collectableAmount > 0) {
+                                      return "Collectable - ₹$collectableAmount";
+                                    } else {
+                                      return "Collectable - ₹${model.grandTotal ?? 0}";
+                                    }
+                                  })()
+                                      : (model.paymentmethod == "paylater"
+                                      ? "Paylater - ₹${model.grandTotal ?? 0}"
+                                      : ""),
                                   status: task.updatestatus??"",
                                   onActionTap: () {
                                     // Same logic here
@@ -272,7 +279,14 @@ class OrderScreen {
               ],
             ),
             const SizedBox(height: 6),
-            Text("Payment $payment", style: const TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.w500)),
+            Text(
+              "Payment ${double.tryParse(payment)?.toStringAsFixed(1) ?? payment}",
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             const SizedBox(height: 12),
             // Action Button
             Row(

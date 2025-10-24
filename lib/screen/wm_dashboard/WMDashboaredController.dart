@@ -125,39 +125,35 @@ class  WMDashboaredController  extends GetxController{
       totalPartiallyDispatch = 0;
       totalCancelled = 0;
       totalCompleted = 0;
+
+      // Save filtered orders for UI use
       statusWiseData = response["filteredOrders"] ?? [];
 
-      // Parse the statusWiseCount correctly
-      if (response["statusWiseCount"] != null && response["statusWiseCount"] is List) {
-        for (var statusGroup in response["statusWiseCount"]) {
-          final status = (statusGroup["_id"] ?? "").toString().toLowerCase();
-          final count = statusGroup["count"] ?? 0;
+      // Count based on inchargeStatus
+      for (var order in statusWiseData) {
+        final inchargeStatus = (order["inchargeStatus"] ?? "").toString().toLowerCase();
 
-          switch (status) {
-            case "pending":
-              totalPending += count;
-              break;
+        switch (inchargeStatus) {
+          case "pending":
+            totalPending++;
+            break;
 
-            case "partiallydispatch":
-            case "dispatch":
-            case "ofd":
-              totalPartiallyDispatch += count;
-              break;
+          case "partiallydispatch":
+            totalPartiallyDispatch++;
+            break;
 
-            case "cancelled":
-            case "canceled":
-              totalCancelled += count;
-              break;
+          case "complete":
+            totalCompleted++;
+            break;
 
-            case "complete":
-            case "completed":
-            case "delivered":
-              totalCompleted += count;
-              break;
+          case "cancelled":
+          case "canceled":
+            totalCancelled++;
+            break;
 
-            default:
-              totalPending += count;
-          }
+          default:
+          // Treat unknown status as pending
+            totalPending++;
         }
       }
 
@@ -170,6 +166,7 @@ class  WMDashboaredController  extends GetxController{
       update();
     });
   }
+
 
 
 
@@ -205,6 +202,7 @@ class  WMDashboaredController  extends GetxController{
       "Authorization": "Bearer ${loginModel.driver!.token}"
     }).then((onValue){
       var response=jsonDecode(onValue);
+      developer.log('orders history: $response');
       if(response["orders"]!=null){
         historyList.clear();
         response["orders"].forEach((value){

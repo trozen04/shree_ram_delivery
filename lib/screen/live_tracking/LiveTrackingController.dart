@@ -28,6 +28,7 @@ class LiveTrackingController extends GetxController {
   Set<Polyline> polylines = <Polyline>{};
   Set<Polygon> polygons = <Polygon>{}; // Added for delivery zone
   double latestDeliveryCharge = 0.0; // add this as a controller property
+  double totalGrandTotal = 0.0; // add this as a controller property
 
   String mapError = "";
   Timer? timer;
@@ -50,6 +51,15 @@ class LiveTrackingController extends GetxController {
 
     getUserDetails();
   }
+
+  void stopLiveTracking() {
+    if (timer != null) {
+      timer!.cancel();
+      timer = null;
+      print("🛑 Live tracking stopped.");
+    }
+  }
+
 
   getUserDetails(){
     startTimer();
@@ -76,7 +86,6 @@ class LiveTrackingController extends GetxController {
 
 
   updateLiveTracking(BuildContext context) async {
-    // 🛑 Check if currentPosition or its lat/long is invalid
     if (currentPosition.latitude == 0.0 ||
         currentPosition.longitude == 0.0 ||
         currentPosition.latitude.isNaN ||
@@ -86,7 +95,7 @@ class LiveTrackingController extends GetxController {
     }
 
     final url = ConstantString.updateliveTracking +
-        "${model.orderid!.sId}/${loginModel.driver!.id}";
+        "${model.sId}";
 
     // ✅ Encode the body as JSON string
     final body = {
@@ -115,6 +124,9 @@ class LiveTrackingController extends GetxController {
       profileModel = ProfileModel.fromJson(decoded);
       latestDeliveryCharge = decoded["deliveryCharge"] != null
           ? double.tryParse(decoded["deliveryCharge"].toString()) ?? 0.0
+          : 0.0;
+      totalGrandTotal = decoded["totalGrandTotal"] != null
+          ? double.tryParse(decoded["totalGrandTotal"].toString()) ?? 0.0
           : 0.0;
       update();
     } catch (e) {

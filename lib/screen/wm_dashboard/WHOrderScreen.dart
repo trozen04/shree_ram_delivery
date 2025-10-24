@@ -53,7 +53,9 @@ class WHOrderScreen {
           ],
         ),
         Expanded(
-          child: ListView.builder(
+          child: controller.dailyAssignedList.length <= 0
+              ? Center(child: Text('No Assigned orders found.'))
+              :  ListView.builder(
             itemCount: controller.dailyAssignedList.length,
             padding: EdgeInsets.symmetric(horizontal: 20),
             itemBuilder: (BuildContext context, int index) {
@@ -68,81 +70,16 @@ class WHOrderScreen {
                         orderId: model.sId??"",
                         name: model.userId!.name??"",
                         address:model.deliveryaddress!=null?
-                        "${model.deliveryaddress!.addressline},${model.deliveryaddress!.city},${model.deliveryaddress!.state},(${model.deliveryaddress!.pin})":"",
+                        "${model.deliveryaddress!.addressline},${model.deliveryaddress!.city},${model.deliveryaddress!.state},(${model.deliveryaddress!.pin})":"Delhi",
                         phone: "+91 ${model.userId!.mobileno??""}",
                         payment: "${model.grandTotal??""}",
-                        status:( model.status??"").toLowerCase()=="confirmed"?"Start Loading":"Completed"
+                        status:( model.status??"")
                       )
                     );
             }
           )
     )
-          // child: SingleChildScrollView(
-          //   padding: EdgeInsets.symmetric(horizontal: 20),
-          //   child: Column(
-          //     children: [
-          //       InkWell(
-          //         onTap: (){
-          //           Get.to(()=>ActiveDeliveryScreen());
-          //         },
-          //         child: buildDeliveryCard(context,
-          //           orderId: "398375",
-          //           name: "Rajesh Kumar",
-          //           address:
-          //           "No – 9 Plot, Building, 2nd, 3rd and 4th Floor, Moti Nagar Rd, Delhi Industrial Area, New Delhi, Delhi 110015",
-          //           phone: "+91 9876543234",
-          //           payment: "Cash - ₹400",
-          //           status: "Start Loading",
-          //         ),
-          //       ),
-          //       buildDeliveryCard(context,
-          //         orderId: "398376",
-          //         name: "Rajesh Kumar",
-          //         address:
-          //         "No – 9 Plot, Building, 2nd, 3rd and 4th Floor, Moti Nagar Rd, Delhi Industrial Area, New Delhi, Delhi 110015",
-          //         phone: "+91 9876543234",
-          //         payment: "Cash - ₹400",
-          //         status: "Picked",
-          //       ),
-          //       buildDeliveryCard(context,
-          //         orderId: "398377",
-          //         name: "Rajesh Kumar",
-          //         address:
-          //         "No – 9 Plot, Building, 2nd, 3rd and 4th Floor, Moti Nagar Rd, Delhi Industrial Area, New Delhi, Delhi 110015",
-          //         phone: "+91 9876543234",
-          //         payment: "Cash - ₹400",
-          //         status: "Out for delivery",
-          //       ),
-          //       buildDeliveryCard(context,
-          //         orderId: "398378",
-          //         name: "Rajesh Kumar",
-          //         address:
-          //         "No – 9 Plot, Building, 2nd, 3rd and 4th Floor, Moti Nagar Rd, Delhi Industrial Area, New Delhi, Delhi 110015",
-          //         phone: "+91 9876543234",
-          //         payment: "Cash - ₹400",
-          //         status: "Delivered",
-          //       ),
-          //       buildDeliveryCard(context,
-          //         orderId: "398379",
-          //         name: "Rajesh Kumar",
-          //         address:
-          //         "No – 9 Plot, Building, 2nd, 3rd and 4th Floor, Moti Nagar Rd, Delhi Industrial Area, New Delhi, Delhi 110015",
-          //         phone: "+91 9876543234",
-          //         payment: "Cash - ₹400",
-          //         status: "Delivery Failed",
-          //       ),
-          //       buildDeliveryCard(context,
-          //         orderId: "398380",
-          //         name: "Rajesh Kumar",
-          //         address:
-          //         "No – 9 Plot, Building, 2nd, 3rd and 4th Floor, Moti Nagar Rd, Delhi Industrial Area, New Delhi, Delhi 110015",
-          //         phone: "+91 9876543234",
-          //         payment: "Cash - ₹400",
-          //         status: "Order Canceled",
-          //       ),
-          //     ],
-          //   ),
-          // ),
+
       ],
     );
   }

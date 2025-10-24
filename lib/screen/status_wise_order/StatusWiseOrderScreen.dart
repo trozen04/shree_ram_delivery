@@ -105,7 +105,7 @@ class StatusWiseOrderScreen extends StatelessWidget {
                 DailyAssignedOrderModel model=controller.historyList[index];
 
                 return  InkWell(
-                    onTap: status == 'Complete' || model.inchargeStatus == 'Complete'?
+                    onTap: status == 'Complete' && model.inchargeStatus == 'Complete'?
                         (){
                           AlertDialogManager().sendMessageAlert(context, 'Error', 'This order has been completed.');
                     } : (){
@@ -116,11 +116,11 @@ class StatusWiseOrderScreen extends StatelessWidget {
                         orderId: model.sId??"",
                         name: model.userId!.name??"",
                         address:model.deliveryaddress!=null?
-                        "${model.deliveryaddress!.addressline},${model.deliveryaddress!.city},${model.deliveryaddress!.state},(${model.deliveryaddress!.pin})":"",
+                        "${model.deliveryaddress!.addressline},${model.deliveryaddress!.city},${model.deliveryaddress!.state},(${model.deliveryaddress!.pin})":"Delhi",
                         phone: "+91 ${model.userId!.mobileno??""}",
                         payment: "${model.grandTotal??""}",
                         // status:( model.status??"").toLowerCase()=="Confirmed"?"Start Loading":"Confirmed"
-                        status:( model.status??"")
+                        status:( model.inchargeStatus??"")
                     )
                 );
               },))

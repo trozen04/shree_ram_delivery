@@ -24,7 +24,10 @@ class LiveTrackingScreen extends StatelessWidget {
           return WillPopScope(
             onWillPop: () async {
               // Return latest delivery charge when system back button is pressed
-              Get.back(result: controller.latestDeliveryCharge);
+              Get.back(result: {
+                "latestCharge": controller.latestDeliveryCharge,
+                "totalGrandTotal": controller.totalGrandTotal
+              });
               return false; // Prevent default pop since we already handled it
             },
             child: SafeArea(
@@ -38,8 +41,14 @@ class LiveTrackingScreen extends StatelessWidget {
                       onPressed: () {
                         // Get the controller
                         final controller = Get.find<LiveTrackingController>();
-                        // Return latest delivery charge
-                        Get.back(result: controller.latestDeliveryCharge);
+                        controller.stopLiveTracking();
+
+                        Get.delete<LiveTrackingController>();
+
+                        Get.back(result: {
+                          "latestCharge": controller.latestDeliveryCharge,
+                          "totalGrandTotal": controller.totalGrandTotal
+                        });
                       },
                     ),
                     title: const Text(

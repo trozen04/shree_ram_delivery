@@ -90,12 +90,19 @@ class DispatchHistoryScreen {
         const SizedBox(height: 15),
 
         // History Card
-        Expanded(child: ListView.builder(
+        Expanded(child:  controller.historyList.isEmpty
+            ? Center(
+          child: Text(
+            'No data available. Please check for another date.',
+            style: TextStyle(fontSize: 14, color: Colors.black54),
+          ),
+        )
+            : ListView.builder(
           itemCount: controller.historyList.length,
           padding: EdgeInsets.symmetric(horizontal: 20),
           itemBuilder: (BuildContext context, int index) {
             DailyAssignedOrderModel model=controller.historyList[index];
-          return  InkWell(
+          return InkWell(
               onTap: (){
                 if(( model.status??"").toLowerCase()=="confirmed")
                     Get.to(()=>WHActiveOrderScreen(model));
@@ -104,10 +111,10 @@ class DispatchHistoryScreen {
                   orderId: model.sId??"",
                   name: model.userId!.name??"",
                   address:model.deliveryaddress!=null?
-                  "${model.deliveryaddress!.addressline},${model.deliveryaddress!.city},${model.deliveryaddress!.state},(${model.deliveryaddress!.pin})":"",
+                  "${model.deliveryaddress!.addressline},${model.deliveryaddress!.city},${model.deliveryaddress!.state},(${model.deliveryaddress!.pin})":"Delhi",
                   phone: "+91 ${model.userId!.mobileno??""}",
                   payment: "${model.grandTotal??""}",
-                  status:( model.status??"").toLowerCase()=="confirmed"?"Start Loading":"Completed"
+                  status:( model.status??"In process")
               )
           );
         },))
@@ -177,27 +184,27 @@ class DispatchHistoryScreen {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Order ID + Status
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "#$orderId",
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  status,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: statusColor,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     Text(
+            //       "#$orderId",
+            //       style: const TextStyle(
+            //         fontSize: 14,
+            //         fontWeight: FontWeight.w600,
+            //       ),
+            //     ),
+            //     Text(
+            //       status,
+            //       style: TextStyle(
+            //         fontSize: 13,
+            //         fontWeight: FontWeight.w600,
+            //         color: statusColor,
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // const SizedBox(height: 8),
 
             // Customer Info
             Text(name,

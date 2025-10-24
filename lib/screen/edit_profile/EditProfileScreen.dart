@@ -136,7 +136,7 @@ class EditProfileScreen extends StatelessWidget {
                   leftPadding: 20,
                   bottomPadding: 15,
                   enableBorder: false,
-                  textInputType: TextInputType.number,
+                 // textInputType: TextInputType.number,
                   hintText: "Vehicle",
                   fillColorFiled: true,
                   fillColors: Colors.grey.shade100

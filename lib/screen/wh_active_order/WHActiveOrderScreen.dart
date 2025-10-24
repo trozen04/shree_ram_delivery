@@ -30,9 +30,13 @@ class WHActiveOrderScreen extends StatelessWidget {
             try {
               final loadItemController = Get.find<LoadItemController>(tag: model.sId);
               loadItemController.clearLoadedItems();
+              Get.delete<LoadItemController>(tag: model.sId, force: true);
+
             } catch (e) {
               print("No LoadItemController found to clear: $e");
             }
+            Get.delete<WHActiveOrderController>();
+
             return true;
           },
           child: SafeArea(
@@ -50,9 +54,13 @@ class WHActiveOrderScreen extends StatelessWidget {
                     try {
                       final loadItemController = Get.find<LoadItemController>(tag: model.sId);
                       loadItemController.clearLoadedItems();
+                      Get.delete<LoadItemController>(tag: model.sId, force: true);
+
                     } catch (e) {
                       print("No LoadItemController found to clear: $e");
                     }
+                    Get.delete<WHActiveOrderController>();
+
                     Get.back();
                   },
                 ),
@@ -113,8 +121,8 @@ class WHActiveOrderScreen extends StatelessWidget {
                                           Icon(Icons.phone, color: Colors.purple, size: 16),
                                           SizedBox(width: 6),
                                           if (model.userId != null) Text("+91 ${model.userId!.mobileno}"),
-                                          Spacer(),
-                                          Icon(Icons.call, color: Colors.green),
+                                          // Spacer(),
+                                          // Icon(Icons.call, color: Colors.green),
                                         ],
                                       ),
                                       const SizedBox(height: 6),
@@ -196,6 +204,8 @@ class WHActiveOrderScreen extends StatelessWidget {
                                 Text("Labour Charge : ₹ ${model.totalLabourCharge ?? "0"}"),
                                 Divider(),
                                 Text("Total Amount  : ₹ ${model.grandTotal ?? "0"}", style: TextStyle(fontWeight: FontWeight.bold)),
+                               // Divider(),
+                                //Text("Remaining Amount  : ₹ ${model.remainingAmount ?? "0"}", style: TextStyle(fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 20),
                                 const Divider(),
                                 const Text(
@@ -337,7 +347,7 @@ class WHActiveOrderScreen extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: SizedBox(
-              height: 100,
+              //height: 100,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -355,6 +365,13 @@ class WHActiveOrderScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 13, color: Colors.green, fontWeight: FontWeight.bold),
                     ),
                   ],
+                  if (loadItem.loadedQuantity > 0) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      "Loaded: ${loadItem.loadedQuantity}",
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -365,6 +382,7 @@ class WHActiveOrderScreen extends StatelessWidget {
             decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.amber),
             child: Text("${loadItem.remainingQuantity}", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
           ),
+
         ],
       ),
     );

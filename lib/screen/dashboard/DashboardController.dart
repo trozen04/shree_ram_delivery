@@ -242,22 +242,28 @@ class TodayTaskSummaryModel {
   int? cancel;
   int? dispatch;
 
-  TodayTaskSummaryModel(
-      {this.delivered, this.pending, this.cancel, this.dispatch});
+  TodayTaskSummaryModel({
+    this.delivered,
+    this.pending,
+    this.cancel,
+    this.dispatch,
+  });
 
   TodayTaskSummaryModel.fromJson(Map<String, dynamic> json) {
-    delivered = json['delivered']??0;
-    pending = json['pending']??0;
-    cancel = json['cancel']??0;
-    dispatch = json['dispatch']??0;
+    // ✅ Support both 'delivered' OR 'complete'
+    delivered = json['delivered'] ?? json['complete'] ?? 0;
+    pending = json['pending'] ?? 0;
+    cancel = json['cancel'] ?? 0;
+    // ✅ Support both 'dispatch' OR 'dispatched'
+    dispatch = json['dispatch'] ?? json['dispatched'] ?? 0;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['delivered'] = this.delivered;
-    data['pending'] = this.pending;
-    data['cancel'] = this.cancel;
-    data['dispatch'] = this.dispatch;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['delivered'] = delivered;
+    data['pending'] = pending;
+    data['cancel'] = cancel;
+    data['dispatch'] = dispatch;
     return data;
   }
 }
