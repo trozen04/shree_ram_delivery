@@ -235,6 +235,8 @@ Updated logo and Splash
 Updated and changed load order api (removed previous api updatestatus for loading finished) 
 and added getdrivertask api for fetching data of tasks also added isProductionoutofstock api for fetching data while loading."
 
+8: Changed status to incharge status for receiving and showing data of ord
+ers.
 
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
